@@ -8,13 +8,11 @@
         body { font-family: "Helvetica Neue", Arial, sans-serif; padding: 20px; background-color: #fff; }
         h2, h3 { border-bottom: 2px solid #333; padding-bottom: 10px; }
         
-        /* 表格樣式 */
         table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
         th { background-color: #f4f4f4; text-align: left; padding: 10px; border-bottom: 2px solid #ddd; }
         td { padding: 10px; border-bottom: 1px solid #ddd; vertical-align: middle; }
         .total-row { font-weight: bold; background-color: #fafafa; font-size: 1.1em; }
         
-        /* 按鈕樣式 */
         .btn-qty { width: 30px; height: 30px; background: #eee; border: 1px solid #ccc; cursor: pointer; border-radius: 4px; }
         .btn-qty:hover { background: #ddd; }
         .btn-delete { background: #e74c3c; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
@@ -22,7 +20,6 @@
         .btn-submit:hover { background: #218838; }
         .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
 
-        /* 表單樣式 */
         input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
     </style>
 </head>
@@ -47,17 +44,17 @@
     </div>
 
     <script>
-        // 你的 GAS 網址 (已自動帶入)
+        // GAS URL
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyRVqaR6BD8IvICebGuKfR8mSX5Ewr6YDhYhB5pUPlWP7P_GhiYmerux0AtoDBWs4_CNg/exec";
 
-        // 渲染購物車畫面
+        // Render Cart
         function renderCart() {
             const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             const tbody = document.getElementById('cartItems');
             let total = 0;
             
             if(cart.length === 0){
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">カートは空です (購物車是空的)</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">カートは空です</td></tr>';
                 return;
             }
 
@@ -77,7 +74,6 @@
                 </tr>`;
             }).join('');
 
-            // 追加總計行
             tbody.innerHTML += `
                 <tr class="total-row">
                     <td colspan="3" style="text-align:right">合計:</td>
@@ -85,19 +81,18 @@
                 </tr>`;
         }
 
-        // 更新數量 (+/-)
+        // Update Quantity
         function updateQty(index, change) {
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             
             cart[index].qty += change;
 
-            // 如果數量變成 0 或更小，詢問是否刪除
             if (cart[index].qty < 1) {
-                const confirmDelete = confirm("この商品をカートから削除しますか？");
+                const confirmDelete = confirm("この商品を削除してもよろしいですか？");
                 if (confirmDelete) {
                     cart.splice(index, 1);
                 } else {
-                    cart[index].qty = 1; // 取消刪除則恢復為 1
+                    cart[index].qty = 1;
                 }
             }
 
@@ -105,7 +100,7 @@
             renderCart();
         }
 
-        // 刪除單項
+        // Remove Item
         function removeItem(index) {
             if(!confirm("削除してもよろしいですか？")) return;
             
@@ -115,7 +110,7 @@
             renderCart();
         }
 
-        // 發送到 GAS
+        // Send to GAS
         async function sendToGAS() {
             const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             if (cart.length === 0) return alert("カートが空です");
@@ -130,26 +125,25 @@
             };
 
             if (!payload.company || !payload.person) {
-                return alert("「会社名」と「担当者名」は必須入力です");
+                return alert("会社名と担当者名は必須です");
             }
 
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerText = "送信中... (處理中)";
+            btn.innerText = "送信中...";
 
             try {
                 await fetch(GAS_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // 關鍵：解決 Google Sites 跨域問題
+                    mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 
-                alert("注文が完了しました！\n(訂單已送出)");
+                alert("注文が完了しました！");
                 localStorage.removeItem('rudy_cart');
                 renderCart();
                 
-                // 清空表單
                 document.getElementById('company').value = '';
                 document.getElementById('person').value = '';
                 document.getElementById('phone').value = '';
@@ -158,14 +152,13 @@
 
             } catch (e) {
                 console.error(e);
-                alert("エラーが発生しました。もう一度お試しください。");
+                alert("エラーが発生しました");
             } finally {
                 btn.disabled = false;
                 btn.innerText = "注文を確定する";
             }
         }
 
-        // 頁面載入時渲染購物車
         window.onload = renderCart;
     </script>
 </body>
