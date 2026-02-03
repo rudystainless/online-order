@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品リスト</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; text-align: center;}
+        .product-card { 
+            border: 1px solid #ddd; padding: 15px; margin: 10px auto; 
+            max-width: 300px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        .price { font-size: 1.2em; color: #d32f2f; font-weight: bold; }
+        .qty-input { width: 50px; padding: 5px; text-align: center; }
+        button { 
+            background: #333; color: white; border: none; padding: 10px 20px; 
+            margin-top: 10px; cursor: pointer; border-radius: 4px; 
+        }
+        button:hover { background: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="product-card">
+        <h3>和柄リング (RDWA-003a)</h3>
+        <p class="price">¥1,300</p>
+        <label>数量: <input type="number" class="qty-input" value="1" min="1"></label><br>
+        <button data-name="RDWA-003a" data-price="1300" onclick="addToCart(this)">
+            カートに追加 (加入購物車)
+        </button>
+    </div>
+
+    <div class="product-card">
+        <h3>和柄リング (RDWA-003b)</h3>
+        <p class="price">¥1,500</p>
+        <label>数量: <input type="number" class="qty-input" value="1" min="1"></label><br>
+        <button data-name="RDWA-003b" data-price="1500" onclick="addToCart(this)">
+            カートに追加 (加入購物車)
+        </button>
+    </div>
+
+    <script>
+        function addToCart(btn) {
+            const name = btn.getAttribute('data-name');
+            const price = parseInt(btn.getAttribute('data-price'));
+            const qtyInput = btn.parentElement.querySelector('.qty-input');
+            const qty = parseInt(qtyInput.value);
+
+            // 1. 讀取目前的購物車
+            let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
+
+            // 2. 檢查商品是否已存在
+            const existing = cart.find(item => item.name === name);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                cart.push({ name, price, qty });
+            }
+
+            // 3. 存回 LocalStorage
+            localStorage.setItem('rudy_cart', JSON.stringify(cart));
+            alert(name + " をカートに追加しました！\n現在 " + cart.length + " 種類のアイテムが入っています。");
+        }
+    </script>
+</body>
+</html>
