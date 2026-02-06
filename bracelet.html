@@ -3,276 +3,625 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RDSTB</title>
+    <title>RDSTB - RUDY</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; text-align: center; }
-        .product-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .product-card { border-bottom: 1px solid #eee; padding-bottom: 20px; text-align: left; }
-        .product-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #f0f0f0; }
-        .product-name { font-size: 14px; font-weight: bold; margin: 10px 0; }
-        .qty-input { width: 40px; padding: 5px; }
-        button.add-btn { background: #1a1a1a; color: #fff; border: none; padding: 8px 12px; cursor: pointer; float: right; font-size: 12px; }
-        button.sold-out { background: #ccc; cursor: not-allowed; }
-        button.low-stock { background: #e65100; }
-        .stock-msg { font-size: 11px; color: #e65100; font-weight: bold; }
+        /* ベーススタイル */
+        body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", sans-serif; padding: 15px; text-align: center; background-color: #fff; color: #333; margin: 0; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px; font-size: 1.2rem; }
+        
+        /* 商品グリッド設定 */
+        .product-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 20px; 
+            justify-items: center; 
+        }
+
+        /* モバイル対応：1列に2つの商品を表示 */
+        @media (max-width: 600px) {
+            .product-container { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 10px; 
+            }
+            body { padding: 10px; }
+            .product-name { font-size: 12px !important; }
+            .price { font-size: 12px !important; }
+            .add-btn { font-size: 10px !important; padding: 8px 5px !important; }
+        }
+
+        .product-card { background: white; width: 100%; display: flex; flex-direction: column; text-align: left; }
+        .product-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 2px; background-color: #f5f5f5; }
+        
+        .info-box { padding: 8px 0; }
+        .product-name { font-size: 13px; font-weight: 600; margin: 5px 0; color: #1a1a1a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .price { font-size: 13px; color: #666; margin-bottom: 5px; }
+        
+        /* 在庫表示スタイル */
+        .stock-info { font-size: 11px; font-weight: bold; margin-bottom: 8px; min-height: 15px; }
+        .stock-low { color: #e65100; } /* 5個以下の時のオレンジ */
+        .stock-normal { color: #333; }
+        .stock-out { color: #999; }   /* 在庫なしのグレー */
+
+        .qty-wrapper { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+        .qty-input { width: 35px; padding: 6px 2px; text-align: center; border: 1px solid #ddd; font-size: 12px; }
+        
+        /* ボタン設定 */
+        button.add-btn { 
+            background: #1a1a1a; color: white; border: 1px solid #1a1a1a; 
+            padding: 8px 10px; cursor: pointer; flex-grow: 1; font-size: 11px; 
+            transition: all 0.2s;
+        }
+        button.sold-out { background-color: #e0e0e0 !important; color: #999 !important; border-color: #e0e0e0 !important; cursor: not-allowed; }
+        button.added { background-color: #fff !important; color: #1a1a1a !important; }
     </style>
 </head>
 <body>
-    <h2>RDSTB</h2>
-    <div class="product-container">
 
-        <div class="product-card" data-name="RDSTB-001a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1rI5W2kk6BNpyXxoevBEY4GiKC8yi0YnB" class="product-img">
-            <p class="product-name">RDSTB-001a</p>
-            <p>¥2000</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-001a" data-price="2000" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1rI5W2kk6BNpyXxoevBEY4GiKC8yi0YnB"  onclick="addToCart(this)">ADD TO CART</button>
+    <h2>RDSTB COLLECTION</h2>
+    <div class="product-container" id="container">
+
+        <div class="product-card" data-product-name="RDSTB-001a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1rI5W2kk6BNpyXxoevBEY4GiKC8yi0YnB" alt="RDSTB-001a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-001a</p>
+                <p class="price">¥2,000</p>
+                <div class="stock-info stock-normal">在庫数: 102</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="102" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-001a" 
+                        data-price="2000" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1rI5W2kk6BNpyXxoevBEY4GiKC8yi0YnB" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-001b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1u80yjRZdeXrKtFdt2GdIG7wTqU37WxmM" class="product-img">
-            <p class="product-name">RDSTB-001b</p>
-            <p>¥2000</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-001b" data-price="2000" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1u80yjRZdeXrKtFdt2GdIG7wTqU37WxmM"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-001b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1u80yjRZdeXrKtFdt2GdIG7wTqU37WxmM" alt="RDSTB-001b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-001b</p>
+                <p class="price">¥2,000</p>
+                <div class="stock-info stock-normal">在庫数: 43</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="43" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-001b" 
+                        data-price="2000" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1u80yjRZdeXrKtFdt2GdIG7wTqU37WxmM" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-001c">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1pl79g0l_BFbJrPrmeoJnkX_R9Ne6M9nI" class="product-img">
-            <p class="product-name">RDSTB-001c</p>
-            <p>¥2000</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-001c" data-price="2000" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1pl79g0l_BFbJrPrmeoJnkX_R9Ne6M9nI"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-001c">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1pl79g0l_BFbJrPrmeoJnkX_R9Ne6M9nI" alt="RDSTB-001c" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-001c</p>
+                <p class="price">¥2,000</p>
+                <div class="stock-info stock-normal">在庫数: 96</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="96" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-001c" 
+                        data-price="2000" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1pl79g0l_BFbJrPrmeoJnkX_R9Ne6M9nI" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-001d">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1dh7OVh6t1KeX9FA11RPk2k0O70Msb6CK" class="product-img">
-            <p class="product-name">RDSTB-001d</p>
-            <p>¥2000</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-001d" data-price="2000" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1dh7OVh6t1KeX9FA11RPk2k0O70Msb6CK"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-001d">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1dh7OVh6t1KeX9FA11RPk2k0O70Msb6CK" alt="RDSTB-001d" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-001d</p>
+                <p class="price">¥2,000</p>
+                <div class="stock-info stock-normal">在庫数: 66</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="66" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-001d" 
+                        data-price="2000" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1dh7OVh6t1KeX9FA11RPk2k0O70Msb6CK" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-002a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1OhF01aYvHEILdb16EjjRwvYMWPOzjtL0" class="product-img">
-            <p class="product-name">RDSTB-002a</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-002a" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1OhF01aYvHEILdb16EjjRwvYMWPOzjtL0"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-002a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1OhF01aYvHEILdb16EjjRwvYMWPOzjtL0" alt="RDSTB-002a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-002a</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-normal">在庫数: 77</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="77" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-002a" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1OhF01aYvHEILdb16EjjRwvYMWPOzjtL0" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-002b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1U6OnKypstemramgQfaRd_SxnfeMx0Mzo" class="product-img">
-            <p class="product-name">RDSTB-002b</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-002b" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1U6OnKypstemramgQfaRd_SxnfeMx0Mzo"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-002b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1U6OnKypstemramgQfaRd_SxnfeMx0Mzo" alt="RDSTB-002b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-002b</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-normal">在庫数: 36</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="36" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-002b" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1U6OnKypstemramgQfaRd_SxnfeMx0Mzo" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-003a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1lmnWol7l4pAM7E2TXgZTUwR5OhuDPS2h" class="product-img">
-            <p class="product-name">RDSTB-003a</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-003a" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1lmnWol7l4pAM7E2TXgZTUwR5OhuDPS2h"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-003a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1lmnWol7l4pAM7E2TXgZTUwR5OhuDPS2h" alt="RDSTB-003a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-003a</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-normal">在庫数: 87</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="87" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-003a" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1lmnWol7l4pAM7E2TXgZTUwR5OhuDPS2h" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-003b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=10qpBmSXa4HPAUa9aIRsW6pBQnARyqKKU" class="product-img">
-            <p class="product-name">RDSTB-003b</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-003b" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=10qpBmSXa4HPAUa9aIRsW6pBQnARyqKKU"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-003b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=10qpBmSXa4HPAUa9aIRsW6pBQnARyqKKU" alt="RDSTB-003b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-003b</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-normal">在庫数: 59</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="59" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-003b" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=10qpBmSXa4HPAUa9aIRsW6pBQnARyqKKU" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-004a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1zAzX3_QeLXtelZE0BKmu-ZcltZMO_mVL" class="product-img">
-            <p class="product-name">RDSTB-004a</p>
-            <p>¥2000</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-004a" data-price="2000" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1zAzX3_QeLXtelZE0BKmu-ZcltZMO_mVL"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-004a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1zAzX3_QeLXtelZE0BKmu-ZcltZMO_mVL" alt="RDSTB-004a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-004a</p>
+                <p class="price">¥2,000</p>
+                <div class="stock-info stock-normal">在庫数: 70</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="70" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-004a" 
+                        data-price="2000" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1zAzX3_QeLXtelZE0BKmu-ZcltZMO_mVL" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-004b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1w6Xq5_TkSDIvTThiw44wftYr3M_eZl07" class="product-img">
-            <p class="product-name">RDSTB-004b</p>
-            <p>¥2000</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-004b" data-price="2000" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1w6Xq5_TkSDIvTThiw44wftYr3M_eZl07"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-004b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1w6Xq5_TkSDIvTThiw44wftYr3M_eZl07" alt="RDSTB-004b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-004b</p>
+                <p class="price">¥2,000</p>
+                <div class="stock-info stock-normal">在庫数: 37</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="37" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-004b" 
+                        data-price="2000" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1w6Xq5_TkSDIvTThiw44wftYr3M_eZl07" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-009a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=19QV5L5r1OrhNkcS4GgejklAwjrJcSizj" class="product-img">
-            <p class="product-name">RDSTB-009a</p>
-            <p>¥1600</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-009a" data-price="1600" data-img="https://drive.google.com/thumbnail?sz=w1000&id=19QV5L5r1OrhNkcS4GgejklAwjrJcSizj"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-009a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=19QV5L5r1OrhNkcS4GgejklAwjrJcSizj" alt="RDSTB-009a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-009a</p>
+                <p class="price">¥1,600</p>
+                <div class="stock-info stock-normal">在庫数: 89</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="89" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-009a" 
+                        data-price="1600" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=19QV5L5r1OrhNkcS4GgejklAwjrJcSizj" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-009b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1K_766IkRqxLtXAJipyGBegC1LJGMNrXf" class="product-img">
-            <p class="product-name">RDSTB-009b</p>
-            <p>¥1600</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-009b" data-price="1600" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1K_766IkRqxLtXAJipyGBegC1LJGMNrXf"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-009b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1K_766IkRqxLtXAJipyGBegC1LJGMNrXf" alt="RDSTB-009b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-009b</p>
+                <p class="price">¥1,600</p>
+                <div class="stock-info stock-normal">在庫数: 91</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="91" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-009b" 
+                        data-price="1600" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1K_766IkRqxLtXAJipyGBegC1LJGMNrXf" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-010a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=13FpqV7qrpjVSbLxITAGrI_JZEywOwTEy" class="product-img">
-            <p class="product-name">RDSTB-010a</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-010a" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=13FpqV7qrpjVSbLxITAGrI_JZEywOwTEy"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-010a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=13FpqV7qrpjVSbLxITAGrI_JZEywOwTEy" alt="RDSTB-010a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-010a</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-normal">在庫数: 38</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="38" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-010a" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=13FpqV7qrpjVSbLxITAGrI_JZEywOwTEy" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-010b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1cZVKqrV98sXBxeuSETLzYNcLiu_yirGp" class="product-img">
-            <p class="product-name">RDSTB-010b</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-010b" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1cZVKqrV98sXBxeuSETLzYNcLiu_yirGp"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-010b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1cZVKqrV98sXBxeuSETLzYNcLiu_yirGp" alt="RDSTB-010b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-010b</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-normal">在庫数: 76</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="76" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-010b" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1cZVKqrV98sXBxeuSETLzYNcLiu_yirGp" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-011a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1-ICTuAU7bHe6k4fhp3hAT8VNaZ6VIjf4" class="product-img">
-            <p class="product-name">RDSTB-011a</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-011a" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1-ICTuAU7bHe6k4fhp3hAT8VNaZ6VIjf4"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-011a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1-ICTuAU7bHe6k4fhp3hAT8VNaZ6VIjf4" alt="RDSTB-011a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-011a</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-normal">在庫数: 63</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="63" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-011a" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1-ICTuAU7bHe6k4fhp3hAT8VNaZ6VIjf4" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-011b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1RO5KuMDMefvbVOW6fuxm7ZaeMrpJr1ht" class="product-img">
-            <p class="product-name">RDSTB-011b</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-011b" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1RO5KuMDMefvbVOW6fuxm7ZaeMrpJr1ht"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-011b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1RO5KuMDMefvbVOW6fuxm7ZaeMrpJr1ht" alt="RDSTB-011b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-011b</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-normal">在庫数: 64</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="64" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-011b" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1RO5KuMDMefvbVOW6fuxm7ZaeMrpJr1ht" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-012a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1G3IYq41Ry8O48wVlyDZW5c75AfAKG669" class="product-img">
-            <p class="product-name">RDSTB-012a</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-012a" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1G3IYq41Ry8O48wVlyDZW5c75AfAKG669"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-012a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1G3IYq41Ry8O48wVlyDZW5c75AfAKG669" alt="RDSTB-012a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-012a</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-normal">在庫数: 60</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="60" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-012a" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1G3IYq41Ry8O48wVlyDZW5c75AfAKG669" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-012b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1uBtjuB90IIl19yZ_r24aL4X-CK44gD_8" class="product-img">
-            <p class="product-name">RDSTB-012b</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-012b" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1uBtjuB90IIl19yZ_r24aL4X-CK44gD_8"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-012b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1uBtjuB90IIl19yZ_r24aL4X-CK44gD_8" alt="RDSTB-012b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-012b</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-normal">在庫数: 59</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="59" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-012b" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1uBtjuB90IIl19yZ_r24aL4X-CK44gD_8" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-013a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1ybFFrN5X7o9DI-Ekell_HQn0hYlGF4oJ" class="product-img">
-            <p class="product-name">RDSTB-013a</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-013a" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1ybFFrN5X7o9DI-Ekell_HQn0hYlGF4oJ"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-013a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1ybFFrN5X7o9DI-Ekell_HQn0hYlGF4oJ" alt="RDSTB-013a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-013a</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-normal">在庫数: 80</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="80" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-013a" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1ybFFrN5X7o9DI-Ekell_HQn0hYlGF4oJ" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-013b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1UsoKLHuV0vOAEbspLOSwZQavvOmQZ-e3" class="product-img">
-            <p class="product-name">RDSTB-013b</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn" data-name="RDSTB-013b" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1UsoKLHuV0vOAEbspLOSwZQavvOmQZ-e3"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-013b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1UsoKLHuV0vOAEbspLOSwZQavvOmQZ-e3" alt="RDSTB-013b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-013b</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-normal">在庫数: 70</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="70" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-013b" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1UsoKLHuV0vOAEbspLOSwZQavvOmQZ-e3" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-015a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1l8U4vAP1uCYctduOkMwxTaZfAnl4Yzlv" class="product-img">
-            <p class="product-name">RDSTB-015a</p>
-            <p>¥1800</p>
-            <div class="stock-info">残り1点</div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn low-stock" data-name="RDSTB-015a" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1l8U4vAP1uCYctduOkMwxTaZfAnl4Yzlv"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-015a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1l8U4vAP1uCYctduOkMwxTaZfAnl4Yzlv" alt="RDSTB-015a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-015a</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-low">在庫数: 1</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="1" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-015a" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1l8U4vAP1uCYctduOkMwxTaZfAnl4Yzlv" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-015b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1jOFz5vCVbAOOZS-SIAXqmAHOPa16Z8GC" class="product-img">
-            <p class="product-name">RDSTB-015b</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" disabled>
-            <button class="add-btn sold-out" data-name="RDSTB-015b" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1jOFz5vCVbAOOZS-SIAXqmAHOPa16Z8GC" disabled onclick="addToCart(this)">SOLD OUT</button>
+        <div class="product-card" data-product-name="RDSTB-015b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1jOFz5vCVbAOOZS-SIAXqmAHOPa16Z8GC" alt="RDSTB-015b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-015b</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-out">在庫なし</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="-5" disabled>
+                    <button class="add-btn sold-out" 
+                        data-name="RDSTB-015b" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1jOFz5vCVbAOOZS-SIAXqmAHOPa16Z8GC" 
+                        disabled
+                        onclick="addToCart(this)">
+                        在庫なし
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-016a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1M2GvG7_aoBrD5vVn9RRl9r0qDXpoWYKe" class="product-img">
-            <p class="product-name">RDSTB-016a</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" disabled>
-            <button class="add-btn sold-out" data-name="RDSTB-016a" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1M2GvG7_aoBrD5vVn9RRl9r0qDXpoWYKe" disabled onclick="addToCart(this)">SOLD OUT</button>
+        <div class="product-card" data-product-name="RDSTB-016a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1M2GvG7_aoBrD5vVn9RRl9r0qDXpoWYKe" alt="RDSTB-016a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-016a</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-out">在庫なし</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="-1" disabled>
+                    <button class="add-btn sold-out" 
+                        data-name="RDSTB-016a" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1M2GvG7_aoBrD5vVn9RRl9r0qDXpoWYKe" 
+                        disabled
+                        onclick="addToCart(this)">
+                        在庫なし
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-016b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1_0pED4jh9uGcf92AXk9gYg2vLzY0cvj1" class="product-img">
-            <p class="product-name">RDSTB-016b</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" disabled>
-            <button class="add-btn sold-out" data-name="RDSTB-016b" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1_0pED4jh9uGcf92AXk9gYg2vLzY0cvj1" disabled onclick="addToCart(this)">SOLD OUT</button>
+        <div class="product-card" data-product-name="RDSTB-016b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1_0pED4jh9uGcf92AXk9gYg2vLzY0cvj1" alt="RDSTB-016b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-016b</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-out">在庫なし</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="-1" disabled>
+                    <button class="add-btn sold-out" 
+                        data-name="RDSTB-016b" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1_0pED4jh9uGcf92AXk9gYg2vLzY0cvj1" 
+                        disabled
+                        onclick="addToCart(this)">
+                        在庫なし
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-017a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1gIXm8pdG3FlxpLDBcj70JAU-_aXohiSN" class="product-img">
-            <p class="product-name">RDSTB-017a</p>
-            <p>¥1800</p>
-            <div class="stock-info">残り3点</div>
-            <input type="number" class="qty-input" value="1" min="1" >
-            <button class="add-btn low-stock" data-name="RDSTB-017a" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1gIXm8pdG3FlxpLDBcj70JAU-_aXohiSN"  onclick="addToCart(this)">ADD TO CART</button>
+        <div class="product-card" data-product-name="RDSTB-017a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1gIXm8pdG3FlxpLDBcj70JAU-_aXohiSN" alt="RDSTB-017a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-017a</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-low">在庫数: 3</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="3" >
+                    <button class="add-btn" 
+                        data-name="RDSTB-017a" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1gIXm8pdG3FlxpLDBcj70JAU-_aXohiSN" 
+                        
+                        onclick="addToCart(this)">
+                        カートに入れる
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-card" data-name="RDSTB-017b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1dsSriEebpw7Of8gDR-xjeHvkfuARAqHC" class="product-img">
-            <p class="product-name">RDSTB-017b</p>
-            <p>¥1800</p>
-            <div class="stock-info"></div>
-            <input type="number" class="qty-input" value="1" min="1" disabled>
-            <button class="add-btn sold-out" data-name="RDSTB-017b" data-price="1800" data-img="https://drive.google.com/thumbnail?sz=w1000&id=1dsSriEebpw7Of8gDR-xjeHvkfuARAqHC" disabled onclick="addToCart(this)">SOLD OUT</button>
+        <div class="product-card" data-product-name="RDSTB-017b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1dsSriEebpw7Of8gDR-xjeHvkfuARAqHC" alt="RDSTB-017b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTB-017b</p>
+                <p class="price">¥1,800</p>
+                <div class="stock-info stock-out">在庫なし</div>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1" max="0" disabled>
+                    <button class="add-btn sold-out" 
+                        data-name="RDSTB-017b" 
+                        data-price="1800" 
+                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1dsSriEebpw7Of8gDR-xjeHvkfuARAqHC" 
+                        disabled
+                        onclick="addToCart(this)">
+                        在庫なし
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzMSgsyBnDb6szKpt8aiRTow496onYnTcipUeAfmOqVZic866dh4gV7aMnndWJr-2q4/exec";
         const SHEET_NAME = "RDSTB";
 
+        // 在庫状況をリアルタイム同期する
         async function syncStock() {
             try {
-                const res = await fetch(API_URL + "?sheet=" + encodeURIComponent(SHEET_NAME));
-                const data = await res.json();
+                const response = await fetch(API_URL + "?sheet=" + encodeURIComponent(SHEET_NAME));
+                const stockData = await response.json();
+                
                 document.querySelectorAll('.product-card').forEach(card => {
-                    const name = card.getAttribute('data-name');
-                    const stock = data[name] || 0;
+                    const name = card.getAttribute('data-product-name');
+                    const stock = stockData[name] !== undefined ? parseInt(stockData[name]) : 0;
                     const btn = card.querySelector('.add-btn');
-                    const msg = card.querySelector('.stock-info');
+                    const msgArea = card.querySelector('.stock-info');
+                    const input = card.querySelector('.qty-input');
+
                     if (stock <= 0) {
-                        btn.innerText = "SOLD OUT";
+                        msgArea.innerText = "在庫なし";
+                        msgArea.className = "stock-info stock-out";
+                        btn.innerText = "在庫なし";
                         btn.className = "add-btn sold-out";
                         btn.disabled = true;
-                    } else if (stock <= 5) {
-                        btn.className = "add-btn low-stock";
-                        msg.innerText = "残り" + stock + "点";
+                        input.disabled = true;
+                    } else {
+                        msgArea.innerText = "在庫数: " + stock;
+                        msgArea.className = stock <= 5 ? "stock-info stock-low" : "stock-info stock-normal";
+                        btn.innerText = "カートに入れる";
+                        btn.className = "add-btn";
+                        btn.disabled = false;
+                        input.disabled = false;
+                        input.max = stock;
                     }
                 });
-            } catch(e) {}
+            } catch (e) { console.error("Sync error", e); }
         }
 
+        // カート追加アクション
         function addToCart(btn) {
             const card = btn.closest('.product-card');
-            const qty = parseInt(card.querySelector('.qty-input').value);
-            const item = {
-                name: btn.getAttribute('data-name'),
-                price: parseInt(btn.getAttribute('data-price')),
-                img: btn.getAttribute('data-img'),
-                qty: qty
-            };
+            const name = btn.getAttribute('data-name');
+            const price = parseInt(btn.getAttribute('data-price'));
+            const img = btn.getAttribute('data-img');
+            const qtyInput = card.querySelector('.qty-input');
+            const qty = parseInt(qtyInput.value);
 
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
-            const existing = cart.find(i => i.name === item.name);
-            if (existing) existing.qty += qty; else cart.push(item);
-            
+            const existing = cart.find(item => item.name === name);
+            if (existing) { existing.qty += qty; existing.img = img; } 
+            else { cart.push({ name, price, qty, img }); }
+
             localStorage.setItem('rudy_cart', JSON.stringify(cart));
-            btn.innerText = "ADDED!";
-            setTimeout(() => { btn.innerText = "ADD TO CART"; syncStock(); }, 1000);
+
+            const originalText = btn.innerText;
+            btn.classList.add('added');
+            btn.innerText = "追加済み";
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.classList.remove('added');
+                btn.innerText = originalText;
+                btn.disabled = false;
+                syncStock();
+            }, 1200);
         }
+
         window.onload = syncStock;
     </script>
-</body></html>
+</body>
+</html>
