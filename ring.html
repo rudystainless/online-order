@@ -6,26 +6,40 @@
     <title>RDSTR</title>
     <style>
         body { font-family: "Helvetica Neue", Arial, sans-serif; padding: 20px; text-align: center; background-color: #fff; }
+        
         h2 { border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px; }
+        
         .product-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 30px; justify-items: center; }
         .product-card { background: white; width: 100%; max-width: 250px; display: flex; flex-direction: column; align-items: center; text-align: left; }
         
-        /* 圖片樣式優化 */
         .product-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 4px; background-color: #f0f0f0; margin-bottom: 10px; }
         
         .info-box { width: 100%; padding: 0 5px; }
         .product-name { font-size: 14px; color: #333; margin: 5px 0; font-weight: 500; }
         .price { font-size: 14px; color: #666; margin: 0 0 10px 0; }
+        
         .qty-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 5px; }
         .qty-input { width: 40px; padding: 5px; text-align: center; border: 1px solid #ddd; border-radius: 0; }
-        button.add-btn { background: #1a1a1a; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 0; font-size: 12px; letter-spacing: 1px; flex-grow: 1; margin-left: 10px; transition: background 0.3s; }
-        button.add-btn:hover { background: #555; }
         
-        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; letter-spacing: 1px; opacity: 0; transition: opacity 0.5s, bottom 0.5s; }
-        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        /* ボタンの基本スタイル */
+        button.add-btn { 
+            background: #1a1a1a; color: white; border: 1px solid #1a1a1a; padding: 8px 15px; 
+            cursor: pointer; border-radius: 0; font-size: 12px; letter-spacing: 1px; flex-grow: 1; margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+        button.add-btn:hover { background: #555; border-color: #555; }
+
+        /* 追加成功時のスタイル（反転色） */
+        button.add-btn.added {
+            background-color: #fff !important;
+            color: #1a1a1a !important;
+            border-color: #1a1a1a !important;
+            content: "ADDED";
+        }
     </style>
 </head>
 <body>
+
     <h2>RDSTR COLLECTION</h2>
     <div class="product-container">
 
@@ -744,36 +758,42 @@
             </div>
         </div>
     </div>
-    <div id="toast">商品を追加しました</div>
     <script>
         function addToCart(btn) {
             const name = btn.getAttribute('data-name');
             const price = parseInt(btn.getAttribute('data-price'));
-            const img = btn.getAttribute('data-img'); // 抓取圖片連結
+            const img = btn.getAttribute('data-img');
             const qtyInput = btn.parentElement.querySelector('.qty-input');
             const qty = parseInt(qtyInput.value);
 
             if(qty < 1) return alert("数量は1以上を入力してください");
 
+            // カートへ保存
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             const existing = cart.find(item => item.name === name);
             
             if (existing) {
                 existing.qty += qty;
-                existing.img = img; // 確保舊資料也有圖片
+                existing.img = img;
             } else {
-                cart.push({ name, price, qty, img }); // 存入圖片
+                cart.push({ name, price, qty, img });
             }
-
             localStorage.setItem('rudy_cart', JSON.stringify(cart));
-            showToast(name + " を追加しました");
-        }
 
-        function showToast(message) {
-            var x = document.getElementById("toast");
-            x.innerText = message;
-            x.className = "show";
-            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+            // 【UIフィードバック】ボタンの見た目を一時的に変更
+            const originalText = btn.innerText;
+            
+            // クラスを追加してスタイル変更（白背景・黒文字）
+            btn.classList.add('added');
+            btn.innerText = "CART IN (追加済)";
+            btn.disabled = true; // 連打防止
+
+            // 1.5秒後に元に戻す
+            setTimeout(function() {
+                btn.classList.remove('added');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }, 1500);
         }
     </script>
 </body>
