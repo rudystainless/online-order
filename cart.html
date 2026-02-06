@@ -5,112 +5,135 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>カート</title>
     <style>
-        body { font-family: "Helvetica Neue", Arial, sans-serif; padding: 20px; background-color: #fff; }
-        h2, h3 { border-bottom: 2px solid #333; padding-bottom: 10px; }
-        
+        body { font-family: "Helvetica Neue", Arial, sans-serif; padding: 20px; background-color: #fff; color: #333; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        h3 { margin-top: 40px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+
+        /* 表格樣式優化 */
         table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        th { background-color: #f4f4f4; text-align: left; padding: 10px; border-bottom: 2px solid #ddd; }
-        td { padding: 10px; border-bottom: 1px solid #ddd; vertical-align: middle; }
+        th { background-color: #f8f8f8; text-align: left; padding: 12px; border-bottom: 2px solid #ddd; font-weight: 600; }
+        td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        
+        .product-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; background: #f0f0f0; margin-right: 10px; vertical-align: middle; }
         .total-row { font-weight: bold; background-color: #fafafa; font-size: 1.1em; }
         
-        .btn-qty { width: 30px; height: 30px; background: #eee; border: 1px solid #ccc; cursor: pointer; border-radius: 4px; }
-        .btn-qty:hover { background: #ddd; }
-        .btn-delete { background: #e74c3c; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
-        .btn-submit { background: #28a745; color: white; width: 100%; padding: 15px; border: none; cursor: pointer; font-size: 18px; border-radius: 5px; margin-top: 10px; transition: background 0.3s; }
-        .btn-submit:hover { background: #218838; }
+        /* 按鈕樣式 */
+        .btn-qty { width: 28px; height: 28px; background: #fff; border: 1px solid #ccc; cursor: pointer; border-radius: 2px; }
+        .btn-qty:hover { background: #f0f0f0; }
+        .btn-delete { background: transparent; color: #999; border: 1px solid #ccc; padding: 5px 10px; cursor: pointer; border-radius: 2px; font-size: 12px; }
+        .btn-delete:hover { color: #d32f2f; border-color: #d32f2f; }
+        
+        .btn-submit { 
+            background: #1a1a1a; color: white; width: 100%; padding: 15px; 
+            border: none; cursor: pointer; font-size: 16px; border-radius: 0; 
+            margin-top: 20px; letter-spacing: 1px; transition: background 0.3s; 
+        }
+        .btn-submit:hover { background: #333; }
         .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
 
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        /* 輸入框樣式 */
+        .form-group { margin-bottom: 15px; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 2px; box-sizing: border-box; }
+        input:focus, textarea:focus { border-color: #333; outline: none; }
     </style>
 </head>
 <body>
 
-    <h2>ショッピングカート</h2>
+    <h2>SHOPPING CART</h2>
     <table id="cartTable">
         <thead>
-            <tr><th>商品名</th><th>単価</th><th>数量</th><th>小計</th><th>操作</th></tr>
+            <tr>
+                <th style="width: 50%;">PRODUCT</th>
+                <th style="width: 15%;">PRICE</th>
+                <th style="width: 20%;">QTY</th>
+                <th style="width: 15%;">SUBTOTAL</th>
+                <th style="width: 5%;"></th>
+            </tr>
         </thead>
         <tbody id="cartItems"></tbody>
     </table>
 
-    <h3>お客様情報</h3>
+    <h3>CUSTOMER INFO</h3>
     <div style="max-width: 600px;">
-        <input type="text" id="company" placeholder="会社名 (必須)" required>
-        <input type="text" id="person" placeholder="担当者名 (必須)" required>
-        <input type="text" id="phone" placeholder="電話番号">
-        <input type="email" id="email" placeholder="メールアドレス">
-        <textarea id="note" placeholder="備考" rows="4"></textarea>
-        <button class="btn-submit" id="submitBtn" onclick="sendToGAS()">注文を確定する</button>
+        <div class="form-group"><input type="text" id="company" placeholder="会社名 (必須)" required></div>
+        <div class="form-group"><input type="text" id="person" placeholder="担当者名 (必須)" required></div>
+        <div class="form-group"><input type="text" id="phone" placeholder="電話番号"></div>
+        <div class="form-group"><input type="email" id="email" placeholder="メールアドレス"></div>
+        <div class="form-group"><textarea id="note" placeholder="備考" rows="4"></textarea></div>
+        <button class="btn-submit" id="submitBtn" onclick="sendToGAS()">ORDER CONFIRM (注文確定)</button>
     </div>
 
     <script>
-        // GAS URL
+        // 你的 GAS 網址 (確認無誤)
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyRVqaR6BD8IvICebGuKfR8mSX5Ewr6YDhYhB5pUPlWP7P_GhiYmerux0AtoDBWs4_CNg/exec";
 
-        // Render Cart
+        // 渲染購物車
         function renderCart() {
             const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             const tbody = document.getElementById('cartItems');
             let total = 0;
             
             if(cart.length === 0){
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">カートは空です</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color: #999;">カートは空です (Your cart is empty)</td></tr>';
                 return;
             }
 
             tbody.innerHTML = cart.map((item, index) => {
                 total += item.price * item.qty;
+                // 為了顯示圖片，我們嘗試從資料中找 img，如果沒有就顯示預設圖
+                // 注意：生成器中有把圖片存入嗎？目前的生成器只存了 name, price, qty
+                // 為了保持簡單，這裡先不顯示圖片，專注於文字資訊的整潔
+                
                 return `
                 <tr>
-                    <td>${item.name}</td>
+                    <td>
+                        <span style="font-weight:500;">${item.name}</span>
+                    </td>
                     <td>¥${item.price.toLocaleString()}</td>
                     <td>
                         <button class="btn-qty" onclick="updateQty(${index}, -1)">-</button>
-                        <span style="margin: 0 10px; font-weight:bold;">${item.qty}</span>
+                        <span style="margin: 0 10px;">${item.qty}</span>
                         <button class="btn-qty" onclick="updateQty(${index}, 1)">+</button>
                     </td>
                     <td>¥${(item.price * item.qty).toLocaleString()}</td>
-                    <td><button class="btn-delete" onclick="removeItem(${index})">削除</button></td>
+                    <td><button class="btn-delete" onclick="removeItem(${index})">✕</button></td>
                 </tr>`;
             }).join('');
 
+            // 總計行
             tbody.innerHTML += `
                 <tr class="total-row">
-                    <td colspan="3" style="text-align:right">合計:</td>
+                    <td colspan="3" style="text-align:right">TOTAL:</td>
                     <td colspan="2" style="color:#d32f2f;">¥${total.toLocaleString()}</td>
                 </tr>`;
         }
 
-        // Update Quantity
+        // 更新數量
         function updateQty(index, change) {
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
-            
             cart[index].qty += change;
 
             if (cart[index].qty < 1) {
-                const confirmDelete = confirm("この商品を削除してもよろしいですか？");
-                if (confirmDelete) {
+                if (confirm("この商品を削除しますか？")) {
                     cart.splice(index, 1);
                 } else {
                     cart[index].qty = 1;
                 }
             }
-
             localStorage.setItem('rudy_cart', JSON.stringify(cart));
             renderCart();
         }
 
-        // Remove Item
+        // 刪除項目
         function removeItem(index) {
             if(!confirm("削除してもよろしいですか？")) return;
-            
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             cart.splice(index, 1);
             localStorage.setItem('rudy_cart', JSON.stringify(cart));
             renderCart();
         }
 
-        // Send to GAS
+        // 發送訂單
         async function sendToGAS() {
             const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             if (cart.length === 0) return alert("カートが空です");
@@ -130,7 +153,7 @@
 
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerText = "送信中...";
+            btn.innerText = "SENDING... (送信中)";
 
             try {
                 await fetch(GAS_URL, {
@@ -140,10 +163,10 @@
                     body: JSON.stringify(payload)
                 });
                 
-                alert("注文が完了しました！");
+                alert("ORDER COMPLETED! (注文が完了しました)");
                 localStorage.removeItem('rudy_cart');
                 renderCart();
-                
+                // 清空表單
                 document.getElementById('company').value = '';
                 document.getElementById('person').value = '';
                 document.getElementById('phone').value = '';
@@ -152,10 +175,10 @@
 
             } catch (e) {
                 console.error(e);
-                alert("エラーが発生しました");
+                alert("Error: 送信失敗");
             } finally {
                 btn.disabled = false;
-                btn.innerText = "注文を確定する";
+                btn.innerText = "ORDER CONFIRM (注文確定)";
             }
         }
 
