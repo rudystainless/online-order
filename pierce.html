@@ -6,1371 +6,1334 @@
     <title>RDSTP</title>
     <style>
         body { font-family: "Helvetica Neue", Arial, sans-serif; padding: 20px; text-align: center; background-color: #fff; }
-        
         h2 { border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px; }
-        
         .product-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 30px; justify-items: center; }
         .product-card { background: white; width: 100%; max-width: 250px; display: flex; flex-direction: column; align-items: center; text-align: left; }
-        
         .product-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 4px; background-color: #f0f0f0; margin-bottom: 10px; }
-        
         .info-box { width: 100%; padding: 0 5px; }
         .product-name { font-size: 14px; color: #333; margin: 5px 0; font-weight: 500; }
         .price { font-size: 14px; color: #666; margin: 0 0 10px 0; }
-        
         .qty-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 5px; }
         .qty-input { width: 40px; padding: 5px; text-align: center; border: 1px solid #ddd; border-radius: 0; }
         
-        /* ボタンの基本スタイル */
-        button.add-btn { 
-            background: #1a1a1a; color: white; border: 1px solid #1a1a1a; padding: 8px 15px; 
-            cursor: pointer; border-radius: 0; font-size: 12px; letter-spacing: 1px; flex-grow: 1; margin-left: 10px;
-            transition: all 0.3s ease;
-        }
-        button.add-btn:hover { background: #555; border-color: #555; }
-
-        /* 追加成功時のスタイル（反転色） */
-        button.add-btn.added {
-            background-color: #fff !important;
-            color: #1a1a1a !important;
-            border-color: #1a1a1a !important;
-            content: "ADDED";
-        }
+        /* ボタン基本スタイル */
+        button.add-btn { background: #1a1a1a; color: white; border: 1px solid #1a1a1a; padding: 8px 15px; cursor: pointer; font-size: 12px; letter-spacing: 1px; flex-grow: 1; margin-left: 10px; transition: all 0.3s ease; }
+        button.add-btn:hover { background: #555; }
+        
+        /* 動的状態クラス */
+        button.low-stock { background-color: #e65100; border-color: #e65100; }
+        button.sold-out { background-color: #e0e0e0 !important; color: #999 !important; border-color: #e0e0e0 !important; cursor: not-allowed; }
+        button.added { background-color: #fff !important; color: #1a1a1a !important; }
+        .stock-msg { font-size: 11px; color: #e65100; margin-top: 2px; font-weight: bold; }
+        
+        /* 同期中アニメーション */
+        .sync-loading { opacity: 0.5; pointer-events: none; }
     </style>
 </head>
 <body>
 
     <h2>RDSTP COLLECTION</h2>
-    <div class="product-container">
+    <div class="product-container" id="container">
 
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1BYq-VQJMuguYDyxOvz4CiJ2EilgXElxr" alt="RDSTP-022a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-022a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1BYq-VQJMuguYDyxOvz4CiJ2EilgXElxr" alt="RDSTP-022a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-022a</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-022a" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1BYq-VQJMuguYDyxOvz4CiJ2EilgXElxr" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1LC-EBt5T5DAWKjdOB0W2528Y2NHYr8Dq" alt="RDSTP-022b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-022b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1LC-EBt5T5DAWKjdOB0W2528Y2NHYr8Dq" alt="RDSTP-022b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-022b</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-022b" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1LC-EBt5T5DAWKjdOB0W2528Y2NHYr8Dq" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1z9OuS7DlSP8RsDBZmMWGmZm0gdUdQXnd" alt="RDSTP-025a" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTP-025a</p>
-                <p class="price">¥1600</p>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
-                        data-name="RDSTP-025a" 
-                        data-price="1600" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1z9OuS7DlSP8RsDBZmMWGmZm0gdUdQXnd" 
-                        onclick="addToCart(this)">
-                        ADD TO CART
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1JKoRrnJb8vVSJw1BHeDtx0-vehMI5Up_" alt="RDSTP-025b" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTP-025b</p>
-                <p class="price">¥1600</p>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
-                        data-name="RDSTP-025b" 
-                        data-price="1600" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1JKoRrnJb8vVSJw1BHeDtx0-vehMI5Up_" 
-                        onclick="addToCart(this)">
-                        ADD TO CART
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1oY-OPW-q6iGXNqpH7JaSqMWRAd4Zvu5J" alt="RDSTP-025c" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTP-025c</p>
-                <p class="price">¥1600</p>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
-                        data-name="RDSTP-025c" 
-                        data-price="1600" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1oY-OPW-q6iGXNqpH7JaSqMWRAd4Zvu5J" 
-                        onclick="addToCart(this)">
-                        ADD TO CART
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1ahcJ9mcsDY1586F5bz9TDfkBkyifWpWt" alt="RDSTP-027a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-027a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1ahcJ9mcsDY1586F5bz9TDfkBkyifWpWt" alt="RDSTP-027a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-027a</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-027a" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1ahcJ9mcsDY1586F5bz9TDfkBkyifWpWt" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1iXDJMMUVZN2vyrGX-OczvgAI4WnISJPW" alt="RDSTP-027b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-027b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1iXDJMMUVZN2vyrGX-OczvgAI4WnISJPW" alt="RDSTP-027b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-027b</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-027b" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1iXDJMMUVZN2vyrGX-OczvgAI4WnISJPW" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1C6hlZZgHiVs1RgpWIvSiqYWZ6tmrFa_l" alt="RDSTP-028a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-028a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1C6hlZZgHiVs1RgpWIvSiqYWZ6tmrFa_l" alt="RDSTP-028a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-028a</p>
                 <p class="price">¥1900</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-028a" 
                         data-price="1900" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1C6hlZZgHiVs1RgpWIvSiqYWZ6tmrFa_l" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1cPK1kY_UPBBexH9Tcl8sfLXQp52MNkw0" alt="RDSTP-028b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-028b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1cPK1kY_UPBBexH9Tcl8sfLXQp52MNkw0" alt="RDSTP-028b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-028b</p>
                 <p class="price">¥1900</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-028b" 
                         data-price="1900" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1cPK1kY_UPBBexH9Tcl8sfLXQp52MNkw0" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1-VjUwrodMYipkY0fP1BpKCKZrQcox4qz" alt="RDSTP-033a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-033a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1-VjUwrodMYipkY0fP1BpKCKZrQcox4qz" alt="RDSTP-033a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-033a</p>
                 <p class="price">¥2000</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-033a" 
                         data-price="2000" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1-VjUwrodMYipkY0fP1BpKCKZrQcox4qz" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1UYrVgnF4_AjdBtOBPzYzRJQUfVw8y3i8" alt="RDSTP-033b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-033b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1UYrVgnF4_AjdBtOBPzYzRJQUfVw8y3i8" alt="RDSTP-033b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-033b</p>
                 <p class="price">¥2000</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-033b" 
                         data-price="2000" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1UYrVgnF4_AjdBtOBPzYzRJQUfVw8y3i8" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1VxmhYn6kQYbzZujQVT0xBHq-WDleUUPI" alt="RDSTP-036a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-036a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1VxmhYn6kQYbzZujQVT0xBHq-WDleUUPI" alt="RDSTP-036a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-036a</p>
                 <p class="price">¥1800</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-036a" 
                         data-price="1800" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1VxmhYn6kQYbzZujQVT0xBHq-WDleUUPI" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1SkI3-e9wtlCYakTUVzLedZCBc1qCEn25" alt="RDSTP-036b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-036b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1SkI3-e9wtlCYakTUVzLedZCBc1qCEn25" alt="RDSTP-036b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-036b</p>
                 <p class="price">¥1800</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-036b" 
                         data-price="1800" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1SkI3-e9wtlCYakTUVzLedZCBc1qCEn25" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1iUggkU53zhjBCQ3dfeZlBcHUCb7HHOdq" alt="RDSTP-036c" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTP-036c</p>
-                <p class="price">¥1800</p>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
-                        data-name="RDSTP-036c" 
-                        data-price="1800" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1iUggkU53zhjBCQ3dfeZlBcHUCb7HHOdq" 
-                        onclick="addToCart(this)">
-                        ADD TO CART
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1XovnstlnAQtdxHjKMk-0epYA_9Or9x6y" alt="RDSTP-036d" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-036d">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1XovnstlnAQtdxHjKMk-0epYA_9Or9x6y" alt="RDSTP-036d" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-036d</p>
                 <p class="price">¥1800</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-036d" 
                         data-price="1800" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1XovnstlnAQtdxHjKMk-0epYA_9Or9x6y" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1srvt8Sdemnz1ZXRIvvc1WLqIHJ8buDfs" alt="RDSTP-038a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-038a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1srvt8Sdemnz1ZXRIvvc1WLqIHJ8buDfs" alt="RDSTP-038a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-038a</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-038a" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1srvt8Sdemnz1ZXRIvvc1WLqIHJ8buDfs" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1DHH02V71HIQcm_ZjBgXzfXfmBHVGrToO" alt="RDSTP-038b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-038b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1DHH02V71HIQcm_ZjBgXzfXfmBHVGrToO" alt="RDSTP-038b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-038b</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-038b" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1DHH02V71HIQcm_ZjBgXzfXfmBHVGrToO" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1NyfGL6UySwKOKpiYmqw_ZMAi5xlFZvgc" alt="RDSTP-039a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-039a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1NyfGL6UySwKOKpiYmqw_ZMAi5xlFZvgc" alt="RDSTP-039a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-039a</p>
                 <p class="price">¥2000</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-039a" 
                         data-price="2000" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1NyfGL6UySwKOKpiYmqw_ZMAi5xlFZvgc" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1xdh40T8WMa4GX3-4Eyml0j0ntBwr9efz" alt="RDSTP-039b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-039b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1xdh40T8WMa4GX3-4Eyml0j0ntBwr9efz" alt="RDSTP-039b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-039b</p>
                 <p class="price">¥2000</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-039b" 
                         data-price="2000" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1xdh40T8WMa4GX3-4Eyml0j0ntBwr9efz" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1-wdYjZxPzruty8BnMZRd9a5pChNrbTp_" alt="RDSTP-044a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-044a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1-wdYjZxPzruty8BnMZRd9a5pChNrbTp_" alt="RDSTP-044a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-044a</p>
                 <p class="price">¥1400</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-044a" 
                         data-price="1400" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1-wdYjZxPzruty8BnMZRd9a5pChNrbTp_" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1xoVFfklpEG8lGSeT4EvIi_e5X-sGL2rX" alt="RDSTP-044b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-044b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1xoVFfklpEG8lGSeT4EvIi_e5X-sGL2rX" alt="RDSTP-044b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-044b</p>
                 <p class="price">¥1400</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-044b" 
                         data-price="1400" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1xoVFfklpEG8lGSeT4EvIi_e5X-sGL2rX" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1kQNRns6H-HelfUIa4EGRs6c3zQOWiIHr" alt="RDSTP-045a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-045a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1kQNRns6H-HelfUIa4EGRs6c3zQOWiIHr" alt="RDSTP-045a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-045a</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-045a" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1kQNRns6H-HelfUIa4EGRs6c3zQOWiIHr" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1U8LmoL0o21xCxZckr1O_umZNApPVL8R6" alt="RDSTP-045b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-045b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1U8LmoL0o21xCxZckr1O_umZNApPVL8R6" alt="RDSTP-045b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-045b</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-045b" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1U8LmoL0o21xCxZckr1O_umZNApPVL8R6" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1OXAi8S3p5Zh0gQLXHhyztNGd1NR9MYMY" alt="RDSTP-047a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-047a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1OXAi8S3p5Zh0gQLXHhyztNGd1NR9MYMY" alt="RDSTP-047a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-047a</p>
                 <p class="price">¥1800</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-047a" 
                         data-price="1800" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1OXAi8S3p5Zh0gQLXHhyztNGd1NR9MYMY" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1-3BcElGBJ5mE87QwwQbqgz2KpCq3SjWN" alt="RDSTP-047b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-047b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1-3BcElGBJ5mE87QwwQbqgz2KpCq3SjWN" alt="RDSTP-047b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-047b</p>
                 <p class="price">¥1800</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-047b" 
                         data-price="1800" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1-3BcElGBJ5mE87QwwQbqgz2KpCq3SjWN" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1sEWGCo72IiHsrDUTVh-22WaQ6mm1OGn_" alt="RDSTP-048a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-048a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1sEWGCo72IiHsrDUTVh-22WaQ6mm1OGn_" alt="RDSTP-048a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-048a</p>
                 <p class="price">¥1900</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-048a" 
                         data-price="1900" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1sEWGCo72IiHsrDUTVh-22WaQ6mm1OGn_" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1MWX4hxr-PGc3Z1rQSkeKyQmBriRVloTb" alt="RDSTP-048b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-048b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1MWX4hxr-PGc3Z1rQSkeKyQmBriRVloTb" alt="RDSTP-048b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-048b</p>
                 <p class="price">¥1900</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-048b" 
                         data-price="1900" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1MWX4hxr-PGc3Z1rQSkeKyQmBriRVloTb" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1H81UJr2i6KZ8sYCQSaCIUKgQhvEFJIv8" alt="RDSTP-049a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-049a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1H81UJr2i6KZ8sYCQSaCIUKgQhvEFJIv8" alt="RDSTP-049a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-049a</p>
                 <p class="price">¥1900</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-049a" 
                         data-price="1900" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1H81UJr2i6KZ8sYCQSaCIUKgQhvEFJIv8" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1LthnQYTU1F5VuXwHzSnJU3h_0WfHZWP-" alt="RDSTP-049b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-049b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1LthnQYTU1F5VuXwHzSnJU3h_0WfHZWP-" alt="RDSTP-049b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-049b</p>
                 <p class="price">¥1900</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-049b" 
                         data-price="1900" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1LthnQYTU1F5VuXwHzSnJU3h_0WfHZWP-" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1JAUb2M3GmMsf2fPARSYdXgyTZxjUQQfY" alt="RDSTP-050a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-050a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1JAUb2M3GmMsf2fPARSYdXgyTZxjUQQfY" alt="RDSTP-050a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-050a</p>
                 <p class="price">¥1900</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-050a" 
                         data-price="1900" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1JAUb2M3GmMsf2fPARSYdXgyTZxjUQQfY" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1dU4foGoT7hEufb4N8v0ek1HGdYGb471H" alt="RDSTP-050b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-050b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1dU4foGoT7hEufb4N8v0ek1HGdYGb471H" alt="RDSTP-050b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-050b</p>
                 <p class="price">¥1900</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-050b" 
                         data-price="1900" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1dU4foGoT7hEufb4N8v0ek1HGdYGb471H" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=10bCAXQUuVV69h09LA8cJrq3V3RV_lYht" alt="RDSTP-051a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-051a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=10bCAXQUuVV69h09LA8cJrq3V3RV_lYht" alt="RDSTP-051a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-051a</p>
                 <p class="price">¥1900</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-051a" 
                         data-price="1900" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=10bCAXQUuVV69h09LA8cJrq3V3RV_lYht" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=11Pn36CwkEB9Bod8v23fKDx9l2K21liLG" alt="RDSTP-051b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-051b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=11Pn36CwkEB9Bod8v23fKDx9l2K21liLG" alt="RDSTP-051b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-051b</p>
                 <p class="price">¥1900</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-051b" 
                         data-price="1900" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=11Pn36CwkEB9Bod8v23fKDx9l2K21liLG" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1b_mRBX5rOF1wfpOelJ5n6YUtKO7nNsMY" alt="RDSTP-052a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-052a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1b_mRBX5rOF1wfpOelJ5n6YUtKO7nNsMY" alt="RDSTP-052a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-052a</p>
                 <p class="price">¥2500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-052a" 
                         data-price="2500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1b_mRBX5rOF1wfpOelJ5n6YUtKO7nNsMY" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1cyYP67SIb-XvqjnpmNwjW-bP0Z0wYKf-" alt="RDSTP-052b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-052b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1cyYP67SIb-XvqjnpmNwjW-bP0Z0wYKf-" alt="RDSTP-052b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-052b</p>
                 <p class="price">¥2500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-052b" 
                         data-price="2500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1cyYP67SIb-XvqjnpmNwjW-bP0Z0wYKf-" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1KIH4R0dj5qcTKwn9hfyAPzAwbvabaWkg" alt="RDSTP-053a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-053a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1KIH4R0dj5qcTKwn9hfyAPzAwbvabaWkg" alt="RDSTP-053a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-053a</p>
                 <p class="price">¥1800</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-053a" 
                         data-price="1800" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1KIH4R0dj5qcTKwn9hfyAPzAwbvabaWkg" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=14yXMOUG7CTnk74grmY5BVVEaD61NhdCx" alt="RDSTP-053b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-053b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=14yXMOUG7CTnk74grmY5BVVEaD61NhdCx" alt="RDSTP-053b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-053b</p>
                 <p class="price">¥1800</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-053b" 
                         data-price="1800" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=14yXMOUG7CTnk74grmY5BVVEaD61NhdCx" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=14JXvdzyLmUlaNJgreY1wb6z6CGSWAIzf" alt="RDSTP-054a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-054a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=14JXvdzyLmUlaNJgreY1wb6z6CGSWAIzf" alt="RDSTP-054a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-054a</p>
                 <p class="price">¥1800</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-054a" 
                         data-price="1800" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=14JXvdzyLmUlaNJgreY1wb6z6CGSWAIzf" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1sh6Pn9TK9LePf8Pt7QO5jVGe9AuxbDwc" alt="RDSTP-054b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-054b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1sh6Pn9TK9LePf8Pt7QO5jVGe9AuxbDwc" alt="RDSTP-054b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-054b</p>
                 <p class="price">¥1800</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-054b" 
                         data-price="1800" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1sh6Pn9TK9LePf8Pt7QO5jVGe9AuxbDwc" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1WiqUGyIaYRt737RXLS8j2xljZ1e9GtLM" alt="RDSTP-055a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-055a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1WiqUGyIaYRt737RXLS8j2xljZ1e9GtLM" alt="RDSTP-055a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-055a</p>
                 <p class="price">¥1800</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-055a" 
                         data-price="1800" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1WiqUGyIaYRt737RXLS8j2xljZ1e9GtLM" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=10vibuGNJdc5DfI84ofenlSBEWZskd4Mr" alt="RDSTP-055b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-055b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=10vibuGNJdc5DfI84ofenlSBEWZskd4Mr" alt="RDSTP-055b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-055b</p>
                 <p class="price">¥1800</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-055b" 
                         data-price="1800" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=10vibuGNJdc5DfI84ofenlSBEWZskd4Mr" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=19jD9RREBLqSSYwLOESKMWZl4vCLmWr51" alt="RDSTP-056a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-056a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=19jD9RREBLqSSYwLOESKMWZl4vCLmWr51" alt="RDSTP-056a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-056a</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-056a" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=19jD9RREBLqSSYwLOESKMWZl4vCLmWr51" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1cfbxyE6BE_Z6jIzIBhr_csQfJMJA6fVn" alt="RDSTP-056b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-056b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1cfbxyE6BE_Z6jIzIBhr_csQfJMJA6fVn" alt="RDSTP-056b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-056b</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-056b" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1cfbxyE6BE_Z6jIzIBhr_csQfJMJA6fVn" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1gbWveHb7O6u7fQaoXaRVMWKstfhO502D" alt="RDSTP-057a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-057a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1gbWveHb7O6u7fQaoXaRVMWKstfhO502D" alt="RDSTP-057a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-057a</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-057a" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1gbWveHb7O6u7fQaoXaRVMWKstfhO502D" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1-0ubVZuOEQ666sV_H-vnxWapfufm7HXI" alt="RDSTP-057b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-057b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1-0ubVZuOEQ666sV_H-vnxWapfufm7HXI" alt="RDSTP-057b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-057b</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-057b" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1-0ubVZuOEQ666sV_H-vnxWapfufm7HXI" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1DknSrCsvLSh2cL2PShiRsG7JxgVkCk2q" alt="RDSTP-057c" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-057c">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1DknSrCsvLSh2cL2PShiRsG7JxgVkCk2q" alt="RDSTP-057c" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-057c</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-057c" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1DknSrCsvLSh2cL2PShiRsG7JxgVkCk2q" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1_uIKWRAGrX1ElPUtApn002NMPCLEILyu" alt="RDSTP-058a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-058a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1_uIKWRAGrX1ElPUtApn002NMPCLEILyu" alt="RDSTP-058a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-058a</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-058a" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1_uIKWRAGrX1ElPUtApn002NMPCLEILyu" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1FPu6KtrI6qHdGMfGKLxlZlaHbm4qhU_F" alt="RDSTP-058b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-058b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1FPu6KtrI6qHdGMfGKLxlZlaHbm4qhU_F" alt="RDSTP-058b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-058b</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-058b" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1FPu6KtrI6qHdGMfGKLxlZlaHbm4qhU_F" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1osOxwQn4O2ywXT9gLOCi1HMny4h0b1jX" alt="RDSTP-058c" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-058c">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1osOxwQn4O2ywXT9gLOCi1HMny4h0b1jX" alt="RDSTP-058c" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-058c</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-058c" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1osOxwQn4O2ywXT9gLOCi1HMny4h0b1jX" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=15n3XWYR4R5DVQ699OJIAwQSVcbutswe7" alt="RDSTP-059a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-059a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=15n3XWYR4R5DVQ699OJIAwQSVcbutswe7" alt="RDSTP-059a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-059a</p>
                 <p class="price">¥1500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-059a" 
                         data-price="1500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=15n3XWYR4R5DVQ699OJIAwQSVcbutswe7" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1XzoQyBdUrvmzmlQrf4QEDyWjeWHbWY0w" alt="RDSTP-059b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-059b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1XzoQyBdUrvmzmlQrf4QEDyWjeWHbWY0w" alt="RDSTP-059b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-059b</p>
                 <p class="price">¥1500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-059b" 
                         data-price="1500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1XzoQyBdUrvmzmlQrf4QEDyWjeWHbWY0w" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1wg4dAmAKEERhT1vHK0dLY2fFwa5OJEGo" alt="RDSTP-059c" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-059c">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1wg4dAmAKEERhT1vHK0dLY2fFwa5OJEGo" alt="RDSTP-059c" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-059c</p>
                 <p class="price">¥1500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-059c" 
                         data-price="1500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1wg4dAmAKEERhT1vHK0dLY2fFwa5OJEGo" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1eF4zyjU5gBYNqewHmv2-poSwEcfrL4J4" alt="RDSTP-060a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-060a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1eF4zyjU5gBYNqewHmv2-poSwEcfrL4J4" alt="RDSTP-060a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-060a</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-060a" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1eF4zyjU5gBYNqewHmv2-poSwEcfrL4J4" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1DpjaFqvkVXMe-Y2bLuiQmKmk8uvv1gJj" alt="RDSTP-060b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-060b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1DpjaFqvkVXMe-Y2bLuiQmKmk8uvv1gJj" alt="RDSTP-060b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-060b</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-060b" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1DpjaFqvkVXMe-Y2bLuiQmKmk8uvv1gJj" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=12k154gHiw92BjBbFT27UajytdqGFJ0xY" alt="RDSTP-060c" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-060c">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=12k154gHiw92BjBbFT27UajytdqGFJ0xY" alt="RDSTP-060c" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-060c</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-060c" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=12k154gHiw92BjBbFT27UajytdqGFJ0xY" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1Mk5M8hT-Lc1B6v2lCh4dvykhTl84RQ_h" alt="RDSTP-061a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-061a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1Mk5M8hT-Lc1B6v2lCh4dvykhTl84RQ_h" alt="RDSTP-061a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-061a</p>
                 <p class="price">¥1700</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-061a" 
                         data-price="1700" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1Mk5M8hT-Lc1B6v2lCh4dvykhTl84RQ_h" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1tVxiy6BSF3IiB1ElQRy0H--md-PI-kAt" alt="RDSTP-061b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-061b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1tVxiy6BSF3IiB1ElQRy0H--md-PI-kAt" alt="RDSTP-061b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-061b</p>
                 <p class="price">¥1700</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-061b" 
                         data-price="1700" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1tVxiy6BSF3IiB1ElQRy0H--md-PI-kAt" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=15X4ZKah4VXHLZwlSvUvwIwGV48SfKLPr" alt="RDSTP-061c" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-061c">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=15X4ZKah4VXHLZwlSvUvwIwGV48SfKLPr" alt="RDSTP-061c" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-061c</p>
                 <p class="price">¥1700</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-061c" 
                         data-price="1700" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=15X4ZKah4VXHLZwlSvUvwIwGV48SfKLPr" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1ShVNQ-1WLOlwWQF2oi4usEDxiwzIaeFS" alt="RDSTP-062a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-062a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1ShVNQ-1WLOlwWQF2oi4usEDxiwzIaeFS" alt="RDSTP-062a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-062a</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-062a" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1ShVNQ-1WLOlwWQF2oi4usEDxiwzIaeFS" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1z_xPu4qePbaGGWjXZHUopTh_6rL99gs3" alt="RDSTP-062b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-062b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1z_xPu4qePbaGGWjXZHUopTh_6rL99gs3" alt="RDSTP-062b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-062b</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-062b" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1z_xPu4qePbaGGWjXZHUopTh_6rL99gs3" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1WzWXC3x8JdwqWCmcQOLKavwMGuDg2xuB" alt="RDSTP-063a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-063a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1WzWXC3x8JdwqWCmcQOLKavwMGuDg2xuB" alt="RDSTP-063a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-063a</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-063a" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1WzWXC3x8JdwqWCmcQOLKavwMGuDg2xuB" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1YizHgRy455Yhk7F0aRLdeGuu7VF99pp9" alt="RDSTP-063b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-063b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1YizHgRy455Yhk7F0aRLdeGuu7VF99pp9" alt="RDSTP-063b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-063b</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-063b" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1YizHgRy455Yhk7F0aRLdeGuu7VF99pp9" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1dq4DOA8W_EulJYqFSwbJr2QRvEU1T_vP" alt="RDSTP-064a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-064a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1dq4DOA8W_EulJYqFSwbJr2QRvEU1T_vP" alt="RDSTP-064a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-064a</p>
                 <p class="price">¥2000</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-064a" 
                         data-price="2000" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1dq4DOA8W_EulJYqFSwbJr2QRvEU1T_vP" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1aJj6tEPqZk2Ab8Vqujgjg9I5HqS0RtB6" alt="RDSTP-064b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-064b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1aJj6tEPqZk2Ab8Vqujgjg9I5HqS0RtB6" alt="RDSTP-064b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-064b</p>
                 <p class="price">¥2000</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-064b" 
                         data-price="2000" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1aJj6tEPqZk2Ab8Vqujgjg9I5HqS0RtB6" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1IJpc00kA2HGBWkD9UBHPIn9lwMmhwzz4" alt="RDSTP-065a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-065a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1IJpc00kA2HGBWkD9UBHPIn9lwMmhwzz4" alt="RDSTP-065a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-065a</p>
                 <p class="price">¥2000</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-065a" 
                         data-price="2000" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1IJpc00kA2HGBWkD9UBHPIn9lwMmhwzz4" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1CYN4fVwvFyHmyvWhwqviIVkCNBfmBPZG" alt="RDSTP-065b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-065b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1CYN4fVwvFyHmyvWhwqviIVkCNBfmBPZG" alt="RDSTP-065b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-065b</p>
                 <p class="price">¥2000</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-065b" 
                         data-price="2000" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1CYN4fVwvFyHmyvWhwqviIVkCNBfmBPZG" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1q6yGjvbCUPD-oMSaUYp-CuwPMuZI6B0_" alt="RDSTP-066a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-066a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1q6yGjvbCUPD-oMSaUYp-CuwPMuZI6B0_" alt="RDSTP-066a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-066a</p>
                 <p class="price">¥2000</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-066a" 
                         data-price="2000" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1q6yGjvbCUPD-oMSaUYp-CuwPMuZI6B0_" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1jo_4u6s2256L1fwLvlfUT6Jzv5A75pLM" alt="RDSTP-066b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-066b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1jo_4u6s2256L1fwLvlfUT6Jzv5A75pLM" alt="RDSTP-066b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-066b</p>
                 <p class="price">¥2000</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-066b" 
                         data-price="2000" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1jo_4u6s2256L1fwLvlfUT6Jzv5A75pLM" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1Xpqj54BKw9KTooR95wZ3Tf8rGYv4WV5h" alt="RDSTP-067a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-067a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1Xpqj54BKw9KTooR95wZ3Tf8rGYv4WV5h" alt="RDSTP-067a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-067a</p>
                 <p class="price">¥1500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-067a" 
                         data-price="1500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1Xpqj54BKw9KTooR95wZ3Tf8rGYv4WV5h" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1QVRv62F_z71sLUATQ83fkiTILVURq5Dj" alt="RDSTP-067b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-067b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1QVRv62F_z71sLUATQ83fkiTILVURq5Dj" alt="RDSTP-067b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-067b</p>
                 <p class="price">¥1500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-067b" 
                         data-price="1500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1QVRv62F_z71sLUATQ83fkiTILVURq5Dj" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1E03nJlSyYkhtq0FyoPK4qKJK3GmiorO-" alt="RDSTP-068a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-068a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1E03nJlSyYkhtq0FyoPK4qKJK3GmiorO-" alt="RDSTP-068a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-068a</p>
                 <p class="price">¥1500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-068a" 
                         data-price="1500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1E03nJlSyYkhtq0FyoPK4qKJK3GmiorO-" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1GXrx2wPbKKI1M73Ba17wYEq_c-JrgHw1" alt="RDSTP-068b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-068b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1GXrx2wPbKKI1M73Ba17wYEq_c-JrgHw1" alt="RDSTP-068b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-068b</p>
                 <p class="price">¥1500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-068b" 
                         data-price="1500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1GXrx2wPbKKI1M73Ba17wYEq_c-JrgHw1" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1lytlEFcTmEoaoahG9OMb9sLEPAKG_GB7" alt="RDSTP-069a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-069a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1lytlEFcTmEoaoahG9OMb9sLEPAKG_GB7" alt="RDSTP-069a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-069a</p>
                 <p class="price">¥1500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-069a" 
                         data-price="1500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1lytlEFcTmEoaoahG9OMb9sLEPAKG_GB7" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1GRFOwoP_RvFPsr8Jq-DWBhT_8Kekc2xB" alt="RDSTP-069b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-069b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1GRFOwoP_RvFPsr8Jq-DWBhT_8Kekc2xB" alt="RDSTP-069b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-069b</p>
                 <p class="price">¥1500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-069b" 
                         data-price="1500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1GRFOwoP_RvFPsr8Jq-DWBhT_8Kekc2xB" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1P12x9jkyr9LZotHdZceR6nDJMh3ImeUV" alt="RDSTP-070a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-070a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1P12x9jkyr9LZotHdZceR6nDJMh3ImeUV" alt="RDSTP-070a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-070a</p>
                 <p class="price">¥1500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-070a" 
                         data-price="1500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1P12x9jkyr9LZotHdZceR6nDJMh3ImeUV" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1rBb2x4KiFCJTJvXbApvdMZRoNn0k-Y0i" alt="RDSTP-070b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-070b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1rBb2x4KiFCJTJvXbApvdMZRoNn0k-Y0i" alt="RDSTP-070b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-070b</p>
                 <p class="price">¥1500</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-070b" 
                         data-price="1500" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1rBb2x4KiFCJTJvXbApvdMZRoNn0k-Y0i" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1w6xrUPSooBYUPSGsi6aym7-ovqU1-NYV" alt="RDSTP-071a" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-071a">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1w6xrUPSooBYUPSGsi6aym7-ovqU1-NYV" alt="RDSTP-071a" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-071a</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-071a" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1w6xrUPSooBYUPSGsi6aym7-ovqU1-NYV" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
-        <div class="product-card">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1qHmfTgrVofSAEp9tT2zOyGeISUfCl2E_" alt="RDSTP-071b" class="product-img" loading="lazy">
+        <div class="product-card" data-product-name="RDSTP-071b">
+            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1qHmfTgrVofSAEp9tT2zOyGeISUfCl2E_" alt="RDSTP-071b" class="product-img">
             <div class="info-box">
                 <p class="product-name">RDSTP-071b</p>
                 <p class="price">¥1600</p>
-                <div class="qty-wrapper">
+                <div class="stock-info"></div> <div class="qty-wrapper">
                     <input type="number" class="qty-input" value="1" min="1">
-                    <button class="add-btn" 
+                    <button class="add-btn sync-loading" 
                         data-name="RDSTP-071b" 
                         data-price="1600" 
                         data-img="https://drive.google.com/thumbnail?sz=w1000&id=1qHmfTgrVofSAEp9tT2zOyGeISUfCl2E_" 
                         onclick="addToCart(this)">
-                        ADD TO CART
+                        SYNCING...
                     </button>
                 </div>
             </div>
         </div>
     </div>
     <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycby1OGvnzdq_56NmXX1pI9NAkDw1FhuCbYVeGJm0Jx8/dev";
+        const SHEET_NAME = "RDSTP";
+
+        // ページ読み込み時に最新在庫を取得
+        async function syncStock() {
+            try {
+                const response = await fetch(API_URL + "?sheet=" + encodeURIComponent(SHEET_NAME));
+                const stockData = await response.json();
+                
+                document.querySelectorAll('.product-card').forEach(card => {
+                    const name = card.getAttribute('data-product-name');
+                    const stock = stockData[name] !== undefined ? parseInt(stockData[name]) : 0;
+                    const btn = card.querySelector('.add-btn');
+                    const msgArea = card.querySelector('.stock-info');
+                    const input = card.querySelector('.qty-input');
+
+                    btn.classList.remove('sync-loading');
+                    
+                    if (stock <= 0) {
+                        btn.innerText = "SOLD OUT";
+                        btn.className = "add-btn sold-out";
+                        btn.disabled = true;
+                        input.disabled = true;
+                    } else if (stock <= 5) {
+                        btn.innerText = "ADD TO CART";
+                        btn.className = "add-btn low-stock";
+                        msgArea.innerHTML = '<div class="stock-msg">残り ' + stock + ' 点 (LOW STOCK)</div>';
+                        input.max = stock;
+                    } else {
+                        btn.innerText = "ADD TO CART";
+                        btn.className = "add-btn";
+                        input.max = stock;
+                    }
+                });
+            } catch (e) {
+                console.error("Stock sync failed", e);
+            }
+        }
+
         function addToCart(btn) {
             const name = btn.getAttribute('data-name');
             const price = parseInt(btn.getAttribute('data-price'));
@@ -1378,35 +1341,25 @@
             const qtyInput = btn.parentElement.querySelector('.qty-input');
             const qty = parseInt(qtyInput.value);
 
-            if(qty < 1) return alert("数量は1以上を入力してください");
-
-            // カートへ保存
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             const existing = cart.find(item => item.name === name);
-            
-            if (existing) {
-                existing.qty += qty;
-                existing.img = img;
-            } else {
-                cart.push({ name, price, qty, img });
-            }
+            if (existing) { existing.qty += qty; existing.img = img; } 
+            else { cart.push({ name, price, qty, img }); }
+
             localStorage.setItem('rudy_cart', JSON.stringify(cart));
 
-            // 【UIフィードバック】ボタンの見た目を一時的に変更
             const originalText = btn.innerText;
-            
-            // クラスを追加してスタイル変更（白背景・黒文字）
             btn.classList.add('added');
             btn.innerText = "CART IN (追加済)";
-            btn.disabled = true; // 連打防止
-
-            // 1.5秒後に元に戻す
-            setTimeout(function() {
+            btn.disabled = true;
+            setTimeout(() => {
                 btn.classList.remove('added');
                 btn.innerText = originalText;
                 btn.disabled = false;
             }, 1500);
         }
+
+        window.onload = syncStock;
     </script>
 </body>
 </html>
