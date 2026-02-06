@@ -3,31 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>カート</title>
+    <title>ショッピングカート</title>
     <style>
+        /* 全体のスタイル設定：RUDYのミニマリズムデザイン */
         body { font-family: "Helvetica Neue", Arial, sans-serif; padding: 20px; background-color: #fff; color: #333; }
         h2 { border-bottom: 2px solid #333; padding-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
         
+        /* テーブルレイアウト */
         table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
         th { background-color: #f8f8f8; text-align: left; padding: 12px; border-bottom: 2px solid #ddd; font-weight: 600; }
         td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
         
+        /* 画像サムネイル */
         .product-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; margin-right: 15px; vertical-align: middle; background-color: #f5f5f5; }
         .product-name-text { font-weight: 500; display: inline-block; vertical-align: middle; }
 
         .total-row { font-weight: bold; background-color: #fafafa; font-size: 1.1em; }
         
+        /* ボタン類 */
         .btn-qty { width: 28px; height: 28px; background: #fff; border: 1px solid #ccc; cursor: pointer; border-radius: 2px; }
         .btn-qty:hover { background: #f0f0f0; }
         
-        /* 刪除按鈕樣式 */
+        /* 削除ボタン：iframe内の制限を回避するため確認ダイアログなし */
         .btn-delete { background: white; color: #999; border: 1px solid #ccc; width: 30px; height: 30px; cursor: pointer; border-radius: 4px; font-size: 16px; line-height: 1; }
         .btn-delete:hover { color: white; background-color: #d32f2f; border-color: #d32f2f; }
         
-        /* 清空購物車按鈕 */
         .btn-clear { background-color: #666; color: white; border: none; padding: 8px 15px; font-size: 12px; cursor: pointer; border-radius: 4px; float: right; margin-bottom: 10px; }
         .btn-clear:hover { background-color: #444; }
 
+        /* 送信ボタン */
         .btn-submit { background: #1a1a1a; color: white; width: 100%; padding: 15px; border: none; cursor: pointer; font-size: 16px; border-radius: 0; margin-top: 20px; letter-spacing: 1px; transition: background 0.3s; }
         .btn-submit:hover { background: #333; }
         .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
@@ -65,8 +69,13 @@
     </div>
 
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyRVqaR6BD8IvICebGuKfR8mSX5Ewr6YDhYhB5pUPlWP7P_GhiYmerux0AtoDBWs4_CNg/exec";
+        /**
+         * 【重要】注文を受け取り、注文書作成と在庫減算を行うGASのURL
+         * (重要：負責接收訂單、產出訂單並扣除庫存的 GAS 網址)
+         */
+        const ORDER_GAS_URL = "https://script.google.com/macros/s/AKfycbyaBHpHBLGm61UM7R9k4qTHjg2NO0ly5JRYQwFf76-pwI8Ai3cKGvqeyKfWq7Mzoxxq2w/exec";
 
+        // カート内容を描画する関数
         window.renderCart = function() {
             const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             const tbody = document.getElementById('cartItems');
@@ -79,9 +88,7 @@
 
             tbody.innerHTML = cart.map((item, index) => {
                 total += item.price * item.qty;
-                // 圖片處理：如果沒有圖片連結，顯示灰色佔位圖
-                const imgUrl = item.img ? item.img : ''; 
-                const imgTag = imgUrl ? `<img src="${imgUrl}" class="product-thumb">` : `<span class="product-thumb" style="display:inline-block; width:60px; height:60px; background:#eee;"></span>`;
+                const imgTag = item.img ? `<img src="${item.img}" class="product-thumb">` : `<div class="product-thumb" style="display:inline-block;"></div>`;
                 
                 return `
                 <tr>
@@ -107,33 +114,30 @@
                 </tr>`;
         };
 
+        // 数量を変更する関数
         window.updateQty = function(index, change) {
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             cart[index].qty += change;
-
-            if (cart[index].qty < 1) {
-                // 數量小於1時，直接刪除，不跳視窗
-                cart.splice(index, 1);
-            }
+            if (cart[index].qty < 1) cart.splice(index, 1);
             localStorage.setItem('rudy_cart', JSON.stringify(cart));
             renderCart();
         };
 
+        // カートからアイテムを削除する関数
         window.removeItem = function(index) {
-            // 直接刪除，不跳視窗 (解決按鈕無反應問題)
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             cart.splice(index, 1);
             localStorage.setItem('rudy_cart', JSON.stringify(cart));
             renderCart();
         };
         
+        // 全てクリア
         window.clearCart = function() {
-            if(confirm("カートを空にしますか？ (清空購物車？)")) {
-                localStorage.removeItem('rudy_cart');
-                renderCart();
-            }
+            localStorage.removeItem('rudy_cart');
+            renderCart();
         };
 
+        // GASへデータを送信し、注文を確定させる関数
         window.sendToGAS = async function() {
             const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             if (cart.length === 0) return alert("カートが空です");
@@ -156,7 +160,8 @@
             btn.innerText = "SENDING... (送信中)";
 
             try {
-                await fetch(GAS_URL, {
+                // Fetch APIを使用してバックエンドに注文データを送信
+                await fetch(ORDER_GAS_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
@@ -166,6 +171,7 @@
                 alert("ORDER COMPLETED! (注文が完了しました)");
                 localStorage.removeItem('rudy_cart');
                 renderCart();
+                // フォームのクリア
                 document.getElementById('company').value = '';
                 document.getElementById('person').value = '';
                 document.getElementById('phone').value = '';
@@ -181,6 +187,7 @@
             }
         };
 
+        // 初期化
         window.onload = renderCart;
     </script>
 </body>
