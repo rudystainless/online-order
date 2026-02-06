@@ -7,14 +7,12 @@
     <style>
         body { font-family: "Helvetica Neue", Arial, sans-serif; padding: 20px; background-color: #fff; color: #333; }
         h2 { border-bottom: 2px solid #333; padding-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
-        h3 { margin-top: 40px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
-
+        
         table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
         th { background-color: #f8f8f8; text-align: left; padding: 12px; border-bottom: 2px solid #ddd; font-weight: 600; }
         td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
         
-        /* 圖片縮圖樣式 */
-        .product-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; background: #f0f0f0; margin-right: 15px; vertical-align: middle; border: 1px solid #ddd; }
+        .product-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; margin-right: 15px; vertical-align: middle; background-color: #f5f5f5; }
         .product-name-text { font-weight: 500; display: inline-block; vertical-align: middle; }
 
         .total-row { font-weight: bold; background-color: #fafafa; font-size: 1.1em; }
@@ -22,10 +20,14 @@
         .btn-qty { width: 28px; height: 28px; background: #fff; border: 1px solid #ccc; cursor: pointer; border-radius: 2px; }
         .btn-qty:hover { background: #f0f0f0; }
         
-        /* 刪除按鈕樣式 - 增大點擊範圍 */
-        .btn-delete { background: transparent; color: #999; border: 1px solid #ccc; width: 30px; height: 30px; cursor: pointer; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; }
+        /* 刪除按鈕樣式 */
+        .btn-delete { background: white; color: #999; border: 1px solid #ccc; width: 30px; height: 30px; cursor: pointer; border-radius: 4px; font-size: 16px; line-height: 1; }
         .btn-delete:hover { color: white; background-color: #d32f2f; border-color: #d32f2f; }
         
+        /* 清空購物車按鈕 */
+        .btn-clear { background-color: #666; color: white; border: none; padding: 8px 15px; font-size: 12px; cursor: pointer; border-radius: 4px; float: right; margin-bottom: 10px; }
+        .btn-clear:hover { background-color: #444; }
+
         .btn-submit { background: #1a1a1a; color: white; width: 100%; padding: 15px; border: none; cursor: pointer; font-size: 16px; border-radius: 0; margin-top: 20px; letter-spacing: 1px; transition: background 0.3s; }
         .btn-submit:hover { background: #333; }
         .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
@@ -36,7 +38,9 @@
 </head>
 <body>
 
+    <button class="btn-clear" onclick="clearCart()">CART CLEAR (カートを空にする)</button>
     <h2>SHOPPING CART</h2>
+    
     <table id="cartTable">
         <thead>
             <tr>
@@ -63,7 +67,6 @@
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyRVqaR6BD8IvICebGuKfR8mSX5Ewr6YDhYhB5pUPlWP7P_GhiYmerux0AtoDBWs4_CNg/exec";
 
-        // 將函式掛載到 window 物件，確保全域皆可呼叫（解決刪除按鈕失效的主因）
         window.renderCart = function() {
             const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             const tbody = document.getElementById('cartItems');
@@ -76,8 +79,9 @@
 
             tbody.innerHTML = cart.map((item, index) => {
                 total += item.price * item.qty;
-                // 處理圖片顯示：如果有圖片連結就用，沒有就用灰色方塊
-                const imgTag = item.img ? `<img src="${item.img}" class="product-thumb">` : `<div class="product-thumb" style="display:inline-block; vertical-align:middle;"></div>`;
+                // 圖片處理：如果沒有圖片連結，顯示灰色佔位圖
+                const imgUrl = item.img ? item.img : ''; 
+                const imgTag = imgUrl ? `<img src="${imgUrl}" class="product-thumb">` : `<span class="product-thumb" style="display:inline-block; width:60px; height:60px; background:#eee;"></span>`;
                 
                 return `
                 <tr>
@@ -92,7 +96,7 @@
                         <button class="btn-qty" onclick="updateQty(${index}, 1)">+</button>
                     </td>
                     <td>¥${(item.price * item.qty).toLocaleString()}</td>
-                    <td><button class="btn-delete" onclick="removeItem(${index})" title="Remove">✕</button></td>
+                    <td><button class="btn-delete" onclick="removeItem(${index})">✕</button></td>
                 </tr>`;
             }).join('');
 
@@ -108,24 +112,26 @@
             cart[index].qty += change;
 
             if (cart[index].qty < 1) {
-                if (confirm("この商品を削除しますか？")) {
-                    cart.splice(index, 1);
-                } else {
-                    cart[index].qty = 1;
-                }
+                // 數量小於1時，直接刪除，不跳視窗
+                cart.splice(index, 1);
             }
             localStorage.setItem('rudy_cart', JSON.stringify(cart));
             renderCart();
         };
 
         window.removeItem = function(index) {
-            // 使用 window.confirm 確保彈出
-            if(!window.confirm("削除してもよろしいですか？")) return;
-            
+            // 直接刪除，不跳視窗 (解決按鈕無反應問題)
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
-            cart.splice(index, 1); // 刪除指定項目
-            localStorage.setItem('rudy_cart', JSON.stringify(cart)); // 存回
-            renderCart(); // 重繪
+            cart.splice(index, 1);
+            localStorage.setItem('rudy_cart', JSON.stringify(cart));
+            renderCart();
+        };
+        
+        window.clearCart = function() {
+            if(confirm("カートを空にしますか？ (清空購物車？)")) {
+                localStorage.removeItem('rudy_cart');
+                renderCart();
+            }
         };
 
         window.sendToGAS = async function() {
@@ -175,7 +181,6 @@
             }
         };
 
-        // 啟動
         window.onload = renderCart;
     </script>
 </body>
