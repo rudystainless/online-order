@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDSTL</title>
+    <style>
+        body { font-family: "Helvetica Neue", Arial, sans-serif; padding: 20px; text-align: center; background-color: #fff; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .product-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 30px; justify-items: center; }
+        .product-card { 
+            background: white; width: 100%; max-width: 250px; 
+            display: flex; flex-direction: column; align-items: center; text-align: left;
+        }
+        .product-img { width: 100%; height: 250px; object-fit: cover; border-radius: 4px; background-color: #f0f0f0; margin-bottom: 10px; }
+        
+        .info-box { width: 100%; padding: 0 5px; }
+        .product-name { font-size: 14px; color: #333; margin: 5px 0; font-weight: 500; }
+        .price { font-size: 14px; color: #666; margin: 0 0 10px 0; }
+        
+        .qty-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 5px; }
+        .qty-input { width: 40px; padding: 5px; text-align: center; border: 1px solid #ddd; border-radius: 0; }
+        
+        button.add-btn { 
+            background: #1a1a1a; color: white; border: none; padding: 8px 15px; 
+            cursor: pointer; border-radius: 0; font-size: 12px; letter-spacing: 1px; flex-grow: 1; margin-left: 10px;
+            transition: background 0.3s;
+        }
+        button.add-btn:hover { background: #555; }
+
+        /* Toast 通知樣式 */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff;
+            text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 100;
+            left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; letter-spacing: 1px;
+            opacity: 0; transition: opacity 0.5s, bottom 0.5s;
+        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+    </style>
+</head>
+<body>
+
+    <h2>RDSTL COLLECTION</h2>
+    <div class="product-container">
+
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1tR31X1LR7L0EtQjGLHZdY8SfOjB8JuPK" alt="RDSTL-001a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-001a</p>
+                <p class="price">¥1900</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-001a" data-price="1900" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=15A25vxXB6w4HY317nRUUWVwKBtvk0lC-" alt="RDSTL-001b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-001b</p>
+                <p class="price">¥1900</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-001b" data-price="1900" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1b5GzSDoFfI0dRcwbOerNm6BEF-Bqk8BY" alt="RDSTL-002a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-002a</p>
+                <p class="price">¥1900</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-002a" data-price="1900" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=19qfRqUphncR1iHguLXI4gX1Sxwc8Z29K" alt="RDSTL-002b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-002b</p>
+                <p class="price">¥1900</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-002b" data-price="1900" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=18_CC9GYgkz2hZ1ofyFasXmZfApUNwC99" alt="RDSTL-003a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-003a</p>
+                <p class="price">¥1900</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-003a" data-price="1900" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1M4J1K9DNRUnR30s2GtGLpNyz0sYOggTz" alt="RDSTL-003b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-003b</p>
+                <p class="price">¥1900</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-003b" data-price="1900" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1lEH0IbcTZE_gaqF8rfNSKnbVTLxYqFUk" alt="RDSTL-004a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-004a</p>
+                <p class="price">¥1900</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-004a" data-price="1900" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1Z--drw49sFAUyDZV9mzr9mt7m0t_ZbsL" alt="RDSTL-004b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-004b</p>
+                <p class="price">¥1900</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-004b" data-price="1900" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1hf9FMSPygB8iBOBmi-ayF-zRF4UR-mUi" alt="RDSTL-005a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-005a</p>
+                <p class="price">¥1900</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-005a" data-price="1900" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1z0sCBvSKhP5SmjDm8Tg8S92xxp9Y3bCr" alt="RDSTL-005b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-005b</p>
+                <p class="price">¥1900</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-005b" data-price="1900" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1JtcZcX3BxSbbCGqA6PIFG_io1CeY_2jA" alt="RDSTL-006a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-006a</p>
+                <p class="price">¥1800</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-006a" data-price="1800" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1xjAk71-BbRly5auk16UXhjGzku3Pi_pH" alt="RDSTL-006b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-006b</p>
+                <p class="price">¥1800</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-006b" data-price="1800" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1Jls5QQYLi1u3hwmFoNvB_X1Wh30d8fvO" alt="RDSTL-007a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-007a</p>
+                <p class="price">¥1900</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-007a" data-price="1900" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1PLzlomVirF6lDtoTqPStWPqXex4eA7vs" alt="RDSTL-007b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-007b</p>
+                <p class="price">¥1900</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-007b" data-price="1900" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1FhS4x0Ss0Fe-jWrOQbSkZSyk5ZmLBNEl" alt="RDSTL-008a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-008a</p>
+                <p class="price">¥2000</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-008a" data-price="2000" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1Lt91kbftjKK8IApf4EJH74hpfhK-7cBU" alt="RDSTL-008b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-008b</p>
+                <p class="price">¥2000</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-008b" data-price="2000" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1hhvkE38VANy2e9nmFhfJP8jszKZqEwqB" alt="RDSTL-009a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-009a</p>
+                <p class="price">¥2000</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-009a" data-price="2000" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1Nj3OxfzhfWOezMbXAINVP0oGa6UKRr4Y" alt="RDSTL-009b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-009b</p>
+                <p class="price">¥2000</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-009b" data-price="2000" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1sQ_0aQGe7-JyDOFpt0JzB4qLjbc714tC" alt="RDSTL-010a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-010a</p>
+                <p class="price">¥2000</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-010a" data-price="2000" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1dApBfJZ2xIdlDjSwqXoQiteDaHbmVHFQ" alt="RDSTL-010b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-010b</p>
+                <p class="price">¥2000</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-010b" data-price="2000" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1L2T50yCp2Riy5XQpZtSziUJEkMGLb5lC" alt="RDSTL-011a" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-011a</p>
+                <p class="price">¥2100</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-011a" data-price="2100" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <img src="https://drive.google.com/uc?export=view&id=1rr5pCgphjyqXum9bXCN-Ks6AGA3ScNkm" alt="RDSTL-011b" class="product-img" loading="lazy">
+            <div class="info-box">
+                <p class="product-name">RDSTL-011b</p>
+                <p class="price">¥2100</p>
+                <div class="qty-wrapper">
+                    <input type="number" class="qty-input" value="1" min="1">
+                    <button class="add-btn" data-name="RDSTL-011b" data-price="2100" onclick="addToCart(this)">
+                        ADD TO CART
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="toast">商品を追加しました</div>
+
+    <script>
+        function addToCart(btn) {
+            const name = btn.getAttribute('data-name');
+            const price = parseInt(btn.getAttribute('data-price'));
+            const qtyInput = btn.parentElement.querySelector('.qty-input');
+            const qty = parseInt(qtyInput.value);
+
+            if(qty < 1) return alert("数量は1以上を入力してください");
+
+            // 讀取購物車 (關鍵：使用相同的 rudy_cart)
+            let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
+            const existing = cart.find(item => item.name === name);
+            
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                cart.push({ name, price, qty });
+            }
+
+            localStorage.setItem('rudy_cart', JSON.stringify(cart));
+            showToast(name + " を追加しました");
+        }
+
+        function showToast(message) {
+            var x = document.getElementById("toast");
+            x.innerText = message;
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
+    </script>
+</body>
+</html>
