@@ -3,55 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ショッピングカート - RUDY</title>
+    <title>SHOPPING CART - RUDY</title>
     <style>
         /* ベーススタイル設定 */
-        body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "MS PGothic", sans-serif; padding: 15px; background-color: #fff; color: #333; max-width: 800px; margin: 0 auto; line-height: 1.6; }
-        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; text-align: center; font-size: 1.2rem; }
+        body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", sans-serif; padding: 15px; background-color: #fff; color: #333; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; text-align: center; font-size: 1.2rem; }
         
         /* カートテーブルのレスポンシブ設定 */
-        .cart-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; }
+        .cart-wrapper { overflow-x: auto; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
         th { background-color: #f9f9f9; text-align: left; padding: 12px; border-bottom: 2px solid #eee; font-size: 12px; color: #666; }
         td { padding: 15px 10px; border-bottom: 1px solid #eee; font-size: 14px; }
         
-        /* 商品情報のレイアウト */
+        /* 商品表示レイアウト */
         .product-info { display: flex; align-items: center; }
-        .product-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 2px; margin-right: 12px; background-color: #f0f0f0; border: 1px solid #eee; }
+        .product-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 2px; margin-right: 12px; background-color: #f5f5f5; border: 1px solid #eee; }
         .product-name-text { font-size: 13px; font-weight: 600; }
 
-        /* 数量調整・削除ボタン */
         .qty-controls { display: flex; align-items: center; gap: 8px; }
-        .btn-qty { width: 26px; height: 26px; border: 1px solid #ccc; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .btn-qty:hover { background: #f0f0f0; }
+        .btn-qty { width: 26px; height: 26px; border: 1px solid #ccc; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-delete { background: none; border: none; color: #bbb; cursor: pointer; font-size: 18px; padding: 0 5px; }
-        .btn-delete:hover { color: #d32f2f; }
 
-        /* 合計金額エリア */
         .total-row { font-weight: bold; font-size: 16px; background-color: #fafafa; }
         .total-price { color: #d32f2f; text-align: right; }
         
-        /* お客様情報入力フォーム */
-        .customer-form { margin-top: 40px; border-top: 2px solid #1a1a1a; padding-top: 25px; }
+        /* 顧客情報入力フォーム */
+        .customer-form { border-top: 2px solid #1a1a1a; padding-top: 30px; }
         h3 { font-size: 15px; letter-spacing: 1px; margin-bottom: 20px; border-left: 4px solid #1a1a1a; padding-left: 10px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-size: 12px; margin-bottom: 5px; font-weight: bold; color: #666; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 0; box-sizing: border-box; font-size: 14px; -webkit-appearance: none; }
-        input:focus, textarea:focus { border-color: #1a1a1a; outline: none; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 0; box-sizing: border-box; font-size: 14px; outline: none; -webkit-appearance: none; }
+        input:focus { border-color: #1a1a1a; }
         
-        /* 送信ボタン（モバイルでも押しやすく） */
-        .btn-submit { background: #1a1a1a; color: white; width: 100%; padding: 18px; border: none; cursor: pointer; font-size: 15px; letter-spacing: 2px; transition: 0.3s; font-weight: bold; margin-top: 10px; }
+        /* エラーメッセージ */
+        .error-msg { color: #d32f2f; font-size: 11px; margin-top: 5px; display: none; }
+
+        /* 送信ボタン */
+        .btn-submit { background: #1a1a1a; color: white; width: 100%; padding: 18px; border: none; cursor: pointer; font-size: 15px; letter-spacing: 2px; font-weight: bold; margin-top: 10px; transition: 0.3s; }
         .btn-submit:hover { background: #444; }
         .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
 
         .btn-clear { background: none; border: 1px solid #ccc; color: #999; padding: 5px 12px; font-size: 10px; cursor: pointer; float: right; margin-bottom: 10px; }
-
-        /* モバイル向け微調整 */
-        @media (max-width: 600px) {
-            body { padding: 10px; }
-            td, th { padding: 10px 5px; font-size: 13px; }
-            .product-thumb { width: 40px; height: 40px; }
-        }
     </style>
 </head>
 <body>
@@ -70,8 +62,7 @@
                     <th style="width: 5%;"></th>
                 </tr>
             </thead>
-            <tbody id="cartItems">
-                </tbody>
+            <tbody id="cartItems"></tbody>
         </table>
     </div>
 
@@ -86,28 +77,27 @@
             <input type="text" id="person" placeholder="例：田中 太郎" required>
         </div>
         <div class="form-group">
-            <label>電話番号(必須)</label>
+            <label>電話番号</label>
             <input type="tel" id="phone" placeholder="例：03-1234-5678">
         </div>
         <div class="form-group">
-            <label>メールアドレス(必須)</label>
-            <input type="email" id="email" placeholder="例：example@mail.com">
+            <label>メールアドレス (必須・確認メール用)</label>
+            <input type="email" id="email" placeholder="例：example@mail.com" required oninput="validateEmail()">
+            <div id="emailError" class="error-msg">有効なメールアドレスを入力してください (@とドメインが必要です)</div>
         </div>
         <div class="form-group">
             <label>備考・お問い合わせ</label>
-            <textarea id="note" placeholder="配送に関するご希望などがあればご記入ください" rows="4"></textarea>
+            <textarea id="note" placeholder="ご希望事項など" rows="4"></textarea>
         </div>
-        <button class="btn-submit" id="submitBtn" onclick="sendToOrderGAS()">注文を確定する (ORDER CONFIRM)</button>
+        <button class="btn-submit" id="submitBtn" onclick="processOrder()">注文を確定する (ORDER CONFIRM)</button>
     </div>
 
     <script>
-        /**
-         * 注文処理用バックエンドURL
-         */
-        const ORDER_GAS_URL = "https://script.google.com/macros/s/AKfycbyaBHpHBLGm61UM7R9k4qTHjg2NO0ly5JRYQwFf76-pwI8Ai3cKGvqeyKfWq7Mzoxxq2w/exec";
+        // 後端 GAS 部署網址
+        const API_URL = "https://script.google.com/macros/s/AKfycbzxEYZ9QWeaFpIIjq8FbQIZu2qM_3DY5dxWxqxY5zq8ASxA4GuE19gro-dNGz9Pv7-X/exec";
 
         /**
-         * カートの描画
+         * カート内容の描画
          */
         function renderCart() {
             const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
@@ -173,47 +163,72 @@
         };
 
         /**
-         * 注文送信処理
+         * Email形式のバリデーション (推論F)
          */
-        window.sendToOrderGAS = async () => {
+        function validateEmail() {
+            const email = document.getElementById('email').value;
+            const error = document.getElementById('emailError');
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const isValid = re.test(email);
+            error.style.display = isValid || email === "" ? "none" : "block";
+            return isValid;
+        }
+
+        /**
+         * 注文処理の実行
+         */
+        async function processOrder() {
             const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             if (cart.length === 0) return alert("カートが空です。");
 
+            const company = document.getElementById('company').value.trim();
+            const person = document.getElementById('person').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            // 基本バリデーション
+            if (!company || !person || !email) {
+                return alert("会社名、お名前、メールアドレスは必須項目です。");
+            }
+
+            // Email形式チェック
+            if (!validateEmail()) {
+                return alert("メールアドレスの形式が正しくありません。");
+            }
+
             const payload = {
-                company: document.getElementById('company').value.trim(),
-                person: document.getElementById('person').value.trim(),
+                company: company,
+                person: person,
                 phone: document.getElementById('phone').value.trim(),
-                email: document.getElementById('email').value.trim(),
+                email: email,
                 note: document.getElementById('note').value.trim(),
                 items: cart
             };
-
-            if (!payload.company || !payload.person) {
-                return alert("会社名とお名前は必須項目です。");
-            }
 
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             btn.innerText = "送信中 (SENDING...)";
 
             try {
-                await fetch(ORDER_GAS_URL, {
+                // GASのdoPostへ送信
+                const response = await fetch(API_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
+                    mode: 'no-cors', // GAS互換用
                     body: JSON.stringify(payload)
                 });
                 
-                alert("注文が完了しました。ありがとうございます。");
+                // 成功時は localStorage をクリアして完了画面へ
+                alert("ご注文ありがとうございます！\n注文完了メールとPDF明細を送付しました。");
                 localStorage.removeItem('rudy_cart');
                 window.location.reload();
 
             } catch (e) {
+                console.error(e);
                 alert("送信エラーが発生しました。");
             } finally {
                 btn.disabled = false;
                 btn.innerText = "注文を確定する (ORDER CONFIRM)";
             }
-        };
+        }
 
         window.onload = renderCart;
     </script>
