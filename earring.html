@@ -3,511 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RDSTE - RUDY</title>
+    <title>RUDY COLLECTION</title>
     <style>
-        /* ベーススタイル */
+        /* 基本スタイル設定 */
         body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", sans-serif; padding: 15px; text-align: center; background-color: #fff; color: #333; margin: 0; }
-        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px; font-size: 1.2rem; }
-        
-        /* 商品グリッド設定 */
-        .product-container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-            gap: 20px; 
-            justify-items: center; 
-        }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; font-size: 1.2rem; }
 
-        /* モバイル対応：1列に2つの商品を表示 */
-        @media (max-width: 600px) {
-            .product-container { 
-                grid-template-columns: repeat(2, 1fr); 
-                gap: 10px; 
-            }
-            body { padding: 10px; }
-            .product-name { font-size: 12px !important; }
-            .price { font-size: 12px !important; }
-            .add-btn { font-size: 10px !important; padding: 8px 5px !important; }
-        }
+        /* ローディングアニメーション */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #1a1a1a; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .product-card { background: white; width: 100%; display: flex; flex-direction: column; text-align: left; }
-        .product-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 2px; background-color: #f5f5f5; }
+        /* 検索バーのスタイル */
+        .search-container { margin-bottom: 25px; }
+        #searchInput { width: 90%; max-width: 400px; padding: 12px; border: 1px solid #ddd; font-size: 14px; outline: none; border-radius: 0; -webkit-appearance: none; }
+
+        /* 商品グリッド：スマホで1列に2つ表示 */
+        .product-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; justify-items: center; }
+        @media (min-width: 768px) { .product-container { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 25px; } }
+
+        /* 商品カードのスタイル */
+        .product-card { background: white; width: 100%; display: flex; flex-direction: column; text-align: left; position: relative; }
+        .product-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background-color: #f5f5f5; border-radius: 2px; }
         
+        /* カート内数量バッジ */
+        .cart-badge { position: absolute; top: 8px; right: 8px; background: rgba(26, 26, 26, 0.9); color: #fff; padding: 3px 8px; font-size: 10px; font-weight: bold; border-radius: 12px; z-index: 10; }
+
         .info-box { padding: 8px 0; }
-        .product-name { font-size: 13px; font-weight: 600; margin: 5px 0; color: #1a1a1a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .price { font-size: 13px; color: #666; margin-bottom: 5px; }
+        .product-name { font-size: 13px; font-weight: 600; margin: 4px 0; color: #1a1a1a; }
+        .price { font-size: 13px; color: #666; margin-bottom: 4px; }
         
-        /* 在庫表示スタイル */
-        .stock-info { font-size: 11px; font-weight: bold; margin-bottom: 8px; min-height: 15px; }
-        .stock-low { color: #e65100; } /* 5個以下の時のオレンジ */
+        /* 在庫ステータス */
+        .stock-info { font-size: 11px; font-weight: bold; margin-bottom: 8px; }
+        .stock-low { color: #e65100; } /* 10個以下のオレンジ */
         .stock-normal { color: #333; }
-        .stock-out { color: #999; }   /* 在庫なしのグレー */
+        .stock-out { color: #999; }
 
-        .qty-wrapper { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
-        .qty-input { width: 35px; padding: 6px 2px; text-align: center; border: 1px solid #ddd; font-size: 12px; }
-        
-        /* ボタン設定 */
-        button.add-btn { 
-            background: #1a1a1a; color: white; border: 1px solid #1a1a1a; 
-            padding: 8px 10px; cursor: pointer; flex-grow: 1; font-size: 11px; 
-            transition: all 0.2s;
-        }
+        /* ボタン */
+        button.add-btn { background: #1a1a1a; color: white; border: 1px solid #1a1a1a; padding: 10px; cursor: pointer; font-size: 11px; width: 100%; transition: 0.2s; }
+        button.add-btn:hover { background: #444; }
         button.sold-out { background-color: #e0e0e0 !important; color: #999 !important; border-color: #e0e0e0 !important; cursor: not-allowed; }
-        button.added { background-color: #fff !important; color: #1a1a1a !important; }
+        
+        .no-result { grid-column: 1 / -1; padding: 50px; color: #999; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <h2>RDSTE COLLECTION</h2>
-    <div class="product-container" id="container">
+    <div id="loader"><div class="spinner"></div></div>
 
-        <div class="product-card" data-product-name="RDSTE-001a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1wI5mWVhjewXQ0uUl41xsruF1Me9BYM4r" alt="RDSTE-001a" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-001a</p>
-                <p class="price">¥2,500</p>
-                <div class="stock-info stock-normal">在庫数: 33</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="33" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-001a" 
-                        data-price="2500" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1wI5mWVhjewXQ0uUl41xsruF1Me9BYM4r" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-001b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1E_cZe8pQX3L3GJWP6Ct7lAmuKR5Nt4wV" alt="RDSTE-001b" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-001b</p>
-                <p class="price">¥2,500</p>
-                <div class="stock-info stock-normal">在庫数: 54</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="54" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-001b" 
-                        data-price="2500" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1E_cZe8pQX3L3GJWP6Ct7lAmuKR5Nt4wV" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-002a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1VfT-xNVoYLTgmA98n75l4p_fGhJkaNfu" alt="RDSTE-002a" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-002a</p>
-                <p class="price">¥2,600</p>
-                <div class="stock-info stock-normal">在庫数: 47</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="47" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-002a" 
-                        data-price="2600" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1VfT-xNVoYLTgmA98n75l4p_fGhJkaNfu" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-002b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1r0FpDzuYurAXtPKA1gi21dmH8qWWLwoE" alt="RDSTE-002b" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-002b</p>
-                <p class="price">¥2,600</p>
-                <div class="stock-info stock-normal">在庫数: 50</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="50" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-002b" 
-                        data-price="2600" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1r0FpDzuYurAXtPKA1gi21dmH8qWWLwoE" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-003a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=18Wj1S6BbQsBUBP5sZtkbS9l86lPtZCRc" alt="RDSTE-003a" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-003a</p>
-                <p class="price">¥2,500</p>
-                <div class="stock-info stock-normal">在庫数: 56</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="56" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-003a" 
-                        data-price="2500" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=18Wj1S6BbQsBUBP5sZtkbS9l86lPtZCRc" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-003b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1moc_7tWREnc_dUoWW5Dy40J7UcBdKgHs" alt="RDSTE-003b" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-003b</p>
-                <p class="price">¥2,500</p>
-                <div class="stock-info stock-normal">在庫数: 21</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="21" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-003b" 
-                        data-price="2500" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1moc_7tWREnc_dUoWW5Dy40J7UcBdKgHs" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-004a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1727Lw7_NlIbTNvSbv0VQjwvrJSWHMTv6" alt="RDSTE-004a" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-004a</p>
-                <p class="price">¥2,500</p>
-                <div class="stock-info stock-out">在庫なし</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="-1" disabled>
-                    <button class="add-btn sold-out" 
-                        data-name="RDSTE-004a" 
-                        data-price="2500" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1727Lw7_NlIbTNvSbv0VQjwvrJSWHMTv6" 
-                        disabled
-                        onclick="addToCart(this)">
-                        在庫なし
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-004b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1N0OGs08MWGENEzzivCa12yM9NIQwX38y" alt="RDSTE-004b" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-004b</p>
-                <p class="price">¥2,500</p>
-                <div class="stock-info stock-normal">在庫数: 11</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="11" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-004b" 
-                        data-price="2500" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1N0OGs08MWGENEzzivCa12yM9NIQwX38y" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-005a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1kc7cfFBAj5h-C1sHU3qdRWPReqBmcWkI" alt="RDSTE-005a" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-005a</p>
-                <p class="price">¥2,500</p>
-                <div class="stock-info stock-normal">在庫数: 57</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="57" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-005a" 
-                        data-price="2500" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1kc7cfFBAj5h-C1sHU3qdRWPReqBmcWkI" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-005b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1cikXhHor2r7QHv7tYp1g0bgtLLwwjt27" alt="RDSTE-005b" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-005b</p>
-                <p class="price">¥2,500</p>
-                <div class="stock-info stock-normal">在庫数: 58</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="58" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-005b" 
-                        data-price="2500" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1cikXhHor2r7QHv7tYp1g0bgtLLwwjt27" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-006a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1fDX-TQ43kOmZmphtSQoSvTkTDQVIdg36" alt="RDSTE-006a" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-006a</p>
-                <p class="price">¥2,900</p>
-                <div class="stock-info stock-normal">在庫数: 51</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="51" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-006a" 
-                        data-price="2900" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1fDX-TQ43kOmZmphtSQoSvTkTDQVIdg36" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-006b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1JkheALzf8Trkt3i-WiiVxta2vvp7Q6Lj" alt="RDSTE-006b" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-006b</p>
-                <p class="price">¥2,900</p>
-                <div class="stock-info stock-normal">在庫数: 48</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="48" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-006b" 
-                        data-price="2900" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1JkheALzf8Trkt3i-WiiVxta2vvp7Q6Lj" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-007a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1VG-E_r-agvf1oiTWWKop-vGKbR5B4_v_" alt="RDSTE-007a" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-007a</p>
-                <p class="price">¥2,600</p>
-                <div class="stock-info stock-normal">在庫数: 41</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="41" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-007a" 
-                        data-price="2600" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1VG-E_r-agvf1oiTWWKop-vGKbR5B4_v_" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-007b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1V07Jn9SXcZV8VmptrlwLL6-PT48Ll9Kf" alt="RDSTE-007b" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-007b</p>
-                <p class="price">¥2,600</p>
-                <div class="stock-info stock-normal">在庫数: 46</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="46" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-007b" 
-                        data-price="2600" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1V07Jn9SXcZV8VmptrlwLL6-PT48Ll9Kf" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-008a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1Fc7Lpaa5FsggtdXYkESJulIPeXwV_CdT" alt="RDSTE-008a" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-008a</p>
-                <p class="price">¥2,600</p>
-                <div class="stock-info stock-normal">在庫数: 61</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="61" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-008a" 
-                        data-price="2600" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1Fc7Lpaa5FsggtdXYkESJulIPeXwV_CdT" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-008b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1ExQiUqCsffPa8GKF_MuXR5FXvZSN_Ktf" alt="RDSTE-008b" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-008b</p>
-                <p class="price">¥2,600</p>
-                <div class="stock-info stock-normal">在庫数: 56</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="56" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-008b" 
-                        data-price="2600" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1ExQiUqCsffPa8GKF_MuXR5FXvZSN_Ktf" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-009a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1L658KmnNYjWi5wirubljjWbzKCp2lwhe" alt="RDSTE-009a" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-009a</p>
-                <p class="price">¥2,600</p>
-                <div class="stock-info stock-normal">在庫数: 62</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="62" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-009a" 
-                        data-price="2600" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1L658KmnNYjWi5wirubljjWbzKCp2lwhe" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-009b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1s2Uuuj_FdHBdZRhcknq_vqfpV-iHFh6D" alt="RDSTE-009b" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-009b</p>
-                <p class="price">¥2,600</p>
-                <div class="stock-info stock-normal">在庫数: 63</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="63" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-009b" 
-                        data-price="2600" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1s2Uuuj_FdHBdZRhcknq_vqfpV-iHFh6D" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-010a">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=1LEQvqkajk54Ad0Co03QP8pQ_5507BDTH" alt="RDSTE-010a" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-010a</p>
-                <p class="price">¥2,900</p>
-                <div class="stock-info stock-normal">在庫数: 49</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="49" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-010a" 
-                        data-price="2900" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=1LEQvqkajk54Ad0Co03QP8pQ_5507BDTH" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="product-card" data-product-name="RDSTE-010b">
-            <img src="https://drive.google.com/thumbnail?sz=w1000&id=15LrbsRomEDJV9KcpP0Kk3KPFHzXiaFa9" alt="RDSTE-010b" class="product-img" loading="lazy">
-            <div class="info-box">
-                <p class="product-name">RDSTE-010b</p>
-                <p class="price">¥2,900</p>
-                <div class="stock-info stock-normal">在庫数: 38</div>
-                <div class="qty-wrapper">
-                    <input type="number" class="qty-input" value="1" min="1" max="38" >
-                    <button class="add-btn" 
-                        data-name="RDSTE-010b" 
-                        data-price="2900" 
-                        data-img="https://drive.google.com/thumbnail?sz=w1000&id=15LrbsRomEDJV9KcpP0Kk3KPFHzXiaFa9" 
-                        
-                        onclick="addToCart(this)">
-                        カートに入れる
-                    </button>
-                </div>
-            </div>
-        </div>
+    <h2>COLLECTION</h2>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="商品名や番号で検索 (例: 046)" oninput="filterProducts()">
     </div>
+
+    <div class="product-container" id="productGrid"></div>
+
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzMSgsyBnDb6szKpt8aiRTow496onYnTcipUeAfmOqVZic866dh4gV7aMnndWJr-2q4/exec";
-        const SHEET_NAME = "RDSTE";
+        // 【設定】GASのデプロイURLとシート名
+        const API_URL = "https://script.google.com/macros/s/AKfycbzxEYZ9QWeaFpIIjq8FbQIZu2qM_3DY5dxWxqxY5zq8ASxA4GuE19gro-dNGz9Pv7-X/exec";
+        const SHEET_NAME = "RDSTE"; // ← ここを各ページに合わせて変更してください
 
-        // 在庫状況をリアルタイム同期する
-        async function syncStock() {
+        let allProducts = []; // 全商品データを保持
+
+        /**
+         * データを即時取得して描画する
+         */
+        async function loadProducts() {
             try {
-                const response = await fetch(API_URL + "?sheet=" + encodeURIComponent(SHEET_NAME));
-                const stockData = await response.json();
-                
-                document.querySelectorAll('.product-card').forEach(card => {
-                    const name = card.getAttribute('data-product-name');
-                    const stock = stockData[name] !== undefined ? parseInt(stockData[name]) : 0;
-                    const btn = card.querySelector('.add-btn');
-                    const msgArea = card.querySelector('.stock-info');
-                    const input = card.querySelector('.qty-input');
-
-                    if (stock <= 0) {
-                        msgArea.innerText = "在庫なし";
-                        msgArea.className = "stock-info stock-out";
-                        btn.innerText = "在庫なし";
-                        btn.className = "add-btn sold-out";
-                        btn.disabled = true;
-                        input.disabled = true;
-                    } else {
-                        msgArea.innerText = "在庫数: " + stock;
-                        msgArea.className = stock <= 5 ? "stock-info stock-low" : "stock-info stock-normal";
-                        btn.innerText = "カートに入れる";
-                        btn.className = "add-btn";
-                        btn.disabled = false;
-                        input.disabled = false;
-                        input.max = stock;
-                    }
-                });
-            } catch (e) { console.error("Sync error", e); }
+                const response = await fetch(`${API_URL}?sheet=${encodeURIComponent(SHEET_NAME)}`);
+                allProducts = await response.json();
+                renderProducts(allProducts);
+            } catch (error) {
+                console.error("データの取得に失敗しました:", error);
+            } finally {
+                // ローディングを非表示にする
+                document.getElementById('loader').style.display = 'none';
+            }
         }
 
-        // カート追加アクション
-        function addToCart(btn) {
-            const card = btn.closest('.product-card');
-            const name = btn.getAttribute('data-name');
-            const price = parseInt(btn.getAttribute('data-price'));
-            const img = btn.getAttribute('data-img');
-            const qtyInput = card.querySelector('.qty-input');
-            const qty = parseInt(qtyInput.value);
+        /**
+         * 商品一覧を描画する
+         */
+        function renderProducts(products) {
+            const grid = document.getElementById('productGrid');
+            const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
+            
+            if (products.length === 0) {
+                grid.innerHTML = '<div class="no-result">該当する商品が見つかりませんでした。</div>';
+                return;
+            }
 
+            grid.innerHTML = products.map(p => {
+                // カート内の数量を確認
+                const cartItem = cart.find(item => item.name === p.name);
+                const cartQty = cartItem ? cartItem.qty : 0;
+
+                // 在庫ステータスの判定
+                const isOut = p.stock <= 0;
+                const isLow = p.stock > 0 && p.stock <= 10;
+                const stockText = isOut ? "在庫なし" : `在庫数: ${p.stock}`;
+                const stockClass = isOut ? "stock-out" : (isLow ? "stock-low" : "stock-normal");
+                const btnText = isOut ? "在庫なし" : "カートに入れる";
+                const btnClass = isOut ? "add-btn sold-out" : "add-btn";
+
+                return `
+                    <div class="product-card" data-name="${p.name}">
+                        ${cartQty > 0 ? `<div class="cart-badge">カート内: ${cartQty}個</div>` : ''}
+                        <img src="${p.img}" alt="${p.name}" class="product-img" loading="lazy">
+                        <div class="info-box">
+                            <p class="product-name">${p.name}</p>
+                            <p class="price">¥${p.price.toLocaleString()}</p>
+                            <div class="stock-info ${stockClass}">${stockText}</div>
+                            <button class="${btnClass}" 
+                                onclick="addToCart('${p.name}', ${p.price}, '${p.img}')"
+                                ${isOut ? 'disabled' : ''}>
+                                ${btnText}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /**
+         * リアルタイム検索フィルター
+         */
+        function filterProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allProducts.filter(p => 
+                p.name.toLowerCase().includes(searchTerm)
+            );
+            renderProducts(filtered);
+        }
+
+        /**
+         * カート追加処理
+         */
+        function addToCart(name, price, img) {
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             const existing = cart.find(item => item.name === name);
-            if (existing) { existing.qty += qty; existing.img = img; } 
-            else { cart.push({ name, price, qty, img }); }
+            
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ name, price, qty: 1, img });
+            }
 
             localStorage.setItem('rudy_cart', JSON.stringify(cart));
-
-            const originalText = btn.innerText;
-            btn.classList.add('added');
-            btn.innerText = "追加済み";
-            btn.disabled = true;
-
-            setTimeout(() => {
-                btn.classList.remove('added');
-                btn.innerText = originalText;
-                btn.disabled = false;
-                syncStock();
-            }, 1200);
+            
+            // UIを即時更新してバッジを表示
+            renderProducts(allProducts);
+            
+            // 簡易的なフィードバック
+            console.log(`${name}をカートに追加しました`);
         }
 
-        window.onload = syncStock;
+        // 初期読み込み
+        window.onload = loadProducts;
     </script>
 </body>
 </html>
