@@ -3,40 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RUDY COLLECTION - ADVANCED UI</title>
+    <title>RUDY COLLECTION</title>
     <style>
+        /* --- 基礎設定 --- */
         body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", sans-serif; padding: 15px; text-align: center; background-color: #fff; color: #333; margin: 0; }
         h2 { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; font-size: 1.1rem; }
 
-        /* ローディングアニメーション */
+        /* ローディング */
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #1a1a1a; border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #1a1a1a; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* 検索バー */
         .search-container { margin-bottom: 25px; }
-        #searchInput { width: 90%; max-width: 400px; padding: 12px; border: 1px solid #ddd; font-size: 14px; outline: none; border-radius: 0; }
+        #searchInput { width: 90%; max-width: 400px; padding: 12px; border: 1px solid #ddd; font-size: 14px; outline: none; border-radius: 0; -webkit-appearance: none; }
 
-        /* 商品グリッド：スマホ2列 */
+        /* 商品グリッド (スマホ2列) */
         .product-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; justify-items: center; }
         @media (min-width: 768px) { .product-container { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 25px; } }
 
+        /* カードデザイン */
         .product-card { background: white; width: 100%; display: flex; flex-direction: column; text-align: left; position: relative; }
         .product-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background-color: #f5f5f5; border-radius: 2px; }
         
-        .info-box { padding: 8px 0; }
-        .product-name { font-size: 13px; font-weight: 600; margin: 4px 0; color: #1a1a1a; }
+        /* 視覺提示：已加入購物車的小標籤 */
+        .cart-badge { position: absolute; top: 5px; right: 5px; background: #1a1a1a; color: #fff; padding: 4px 8px; font-size: 10px; border-radius: 2px; z-index: 10; font-weight: bold; pointer-events: none; }
+
+        .info-box { padding: 8px 0; display: flex; flex-direction: column; flex-grow: 1; }
+        .product-name { font-size: 13px; font-weight: 600; margin: 4px 0; color: #1a1a1a; min-height: 32px; }
         .price { font-size: 13px; color: #666; margin-bottom: 4px; }
         
         .stock-info { font-size: 11px; font-weight: bold; margin-bottom: 8px; }
         .stock-low { color: #e65100; }
         .stock-out { color: #999; }
 
-        /* 数量コントローラーのスタイル */
-        .qty-control { display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; border: 1px solid #1a1a1a; }
-        .btn-action { background: #1a1a1a; color: white; border: none; padding: 10px; cursor: pointer; font-size: 11px; width: 100%; height: 38px; box-sizing: border-box; }
-        .btn-minus, .btn-plus { background: #fff; color: #1a1a1a; border: none; width: 35px; height: 38px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        .qty-display { flex-grow: 1; text-align: center; font-size: 13px; font-weight: bold; }
+        /* --- UI更新：按鈕樣式 --- */
+        /* 狀態1：未加入 (黑底白字) */
+        button.add-btn { 
+            background: #1a1a1a; color: white; border: 1px solid #1a1a1a; 
+            padding: 10px; cursor: pointer; font-size: 12px; width: 100%; 
+            transition: 0.2s; font-weight: bold; margin-top: auto;
+        }
+        button.add-btn:active { transform: scale(0.98); }
+        
+        /* 狀態2：已加入 (白底黑框，數量控制器) */
+        .qty-control { 
+            display: flex; align-items: center; justify-content: space-between; 
+            background: #fff; border: 2px solid #1a1a1a; 
+            height: 36px; box-sizing: border-box; margin-top: auto;
+        }
+        .btn-minus, .btn-plus { 
+            background: #fff; color: #1a1a1a; border: none; 
+            width: 30%; height: 100%; cursor: pointer; 
+            font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center;
+        }
+        .btn-minus:active, .btn-plus:active { background-color: #f0f0f0; }
+        
+        .qty-display { 
+            flex-grow: 1; text-align: center; font-size: 12px; font-weight: bold; 
+            color: #1a1a1a; border-left: 1px solid #eee; border-right: 1px solid #eee; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+        }
 
         button:disabled { background-color: #e0e0e0 !important; color: #999 !important; border: none !important; cursor: not-allowed; }
         .no-result { grid-column: 1 / -1; padding: 50px; color: #999; }
@@ -56,6 +83,7 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzxEYZ9QWeaFpIIjq8FbQIZu2qM_3DY5dxWxqxY5zq8ASxA4GuE19gro-dNGz9Pv7-X/exec";
+        // ↓↓↓ ここを変更してください ↓↓↓
         const SHEET_NAME = "RDSTE"; 
 
         let allProducts = [];
@@ -66,65 +94,56 @@
                 allProducts = await response.json();
                 renderProducts(allProducts);
             } catch (error) {
-                console.error("Error:", error);
+                console.error("Data Load Error:", error);
             } finally {
                 document.getElementById('loader').style.display = 'none';
             }
         }
 
-        /**
-         * 商品一覧の描画（数量操作対応版）
-         */
         function renderProducts(products) {
             const grid = document.getElementById('productGrid');
             const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             
             if (products.length === 0) {
-                grid.innerHTML = '<div class="no-result">該当する商品が見切つかりませんでした。</div>';
+                grid.innerHTML = '<div class="no-result">該当する商品が見つかりませんでした。</div>';
                 return;
             }
 
             grid.innerHTML = products.map(p => {
                 const cartItem = cart.find(item => item.name === p.name);
                 const cartQty = cartItem ? cartItem.qty : 0;
+                
+                // 在庫ロジック
                 const isOut = p.stock <= 0;
                 const isLow = p.stock > 0 && p.stock <= 10;
                 const stockText = isOut ? "在庫なし" : `在庫数: ${p.stock}`;
                 const stockClass = isOut ? "stock-out" : (isLow ? "stock-low" : "stock-normal");
 
-                // 在庫がない場合は常に「在庫なし」ボタンを表示
+                // UI構築
+                let buttonHtml;
                 if (isOut) {
-                    return `
-                        <div class="product-card">
-                            <img src="${p.img}" class="product-img">
-                            <div class="info-box">
-                                <p class="product-name">${p.name}</p>
-                                <p class="price">¥${p.price.toLocaleString()}</p>
-                                <div class="stock-info ${stockClass}">${stockText}</div>
-                                <button class="btn-action" disabled>在庫なし</button>
-                            </div>
+                    buttonHtml = `<button class="add-btn" disabled style="background:#e0e0e0; color:#999; border:none;">在庫なし</button>`;
+                } else if (cartQty > 0) {
+                    // 【改善】白底黑框，明確顯示「xx個 追加済」
+                    buttonHtml = `
+                        <div class="qty-control">
+                            <button class="btn-minus" onclick="updateCart('${p.name}', -1)">−</button>
+                            <span class="qty-display">${cartQty}個 追加済</span>
+                            <button class="btn-plus" onclick="updateCart('${p.name}', 1)">+</button>
                         </div>`;
+                } else {
+                    buttonHtml = `<button class="add-btn" onclick="updateCart('${p.name}', 1)">カートに入れる</button>`;
                 }
-
-                // カートに商品がある場合は数量コントローラーを表示
-                const actionUi = cartQty > 0 ? `
-                    <div class="qty-control">
-                        <button class="btn-minus" onclick="updateCart('${p.name}', -1)">−</button>
-                        <span class="qty-display">${cartQty}</span>
-                        <button class="btn-plus" onclick="updateCart('${p.name}', 1)">+</button>
-                    </div>
-                ` : `
-                    <button class="btn-action" onclick="updateCart('${p.name}', 1)">カートに入れる</button>
-                `;
 
                 return `
                     <div class="product-card">
-                        <img src="${p.img}" class="product-img">
+                        ${cartQty > 0 ? `<div class="cart-badge">IN CART</div>` : ''}
+                        <img src="${p.img}" class="product-img" loading="lazy">
                         <div class="info-box">
                             <p class="product-name">${p.name}</p>
                             <p class="price">¥${p.price.toLocaleString()}</p>
                             <div class="stock-info ${stockClass}">${stockText}</div>
-                            ${actionUi}
+                            ${buttonHtml}
                         </div>
                     </div>`;
             }).join('');
@@ -137,29 +156,34 @@
         }
 
         /**
-         * カートの数量更新（加算・減算両対応）
+         * 厳格な在庫チェック付き更新処理
          */
         function updateCart(name, change) {
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             const product = allProducts.find(p => p.name === name);
-            const existing = cart.find(item => item.name === name);
-            
+            let existing = cart.find(item => item.name === name);
+            const currentQty = existing ? existing.qty : 0;
+
+            // 【重要】在庫超過チェック (増やす場合のみ)
+            if (change > 0) {
+                if (currentQty >= product.stock) {
+                    alert(`在庫は残り${product.stock}点のみです。これ以上追加できません。`);
+                    return; // 処理をここで停止
+                }
+            }
+
+            // カート更新処理
             if (existing) {
                 existing.qty += change;
-                // 數量小於等於 0 則移除商品
                 if (existing.qty <= 0) {
                     cart = cart.filter(item => item.name !== name);
-                } else if (product && existing.qty > product.stock) {
-                    // 超過庫存則限制
-                    existing.qty = product.stock;
-                    alert("在庫数を超えています");
                 }
             } else if (change > 0) {
                 cart.push({ name, price: product.price, qty: 1, img: product.img });
             }
 
             localStorage.setItem('rudy_cart', JSON.stringify(cart));
-            renderProducts(allProducts); // UIを再描画
+            renderProducts(allProducts); // UI再描画
         }
 
         window.onload = loadProducts;
