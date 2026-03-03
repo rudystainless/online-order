@@ -9,71 +9,52 @@
         body { font-family: "Helvetica Neue", Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: #f9f9f9; color: #333; }
         h2 { border-bottom: 2px solid #333; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; text-align: center; }
 
-        /* --- カートリスト --- */
-        #cartList { list-style: none; padding: 0; margin-bottom: 30px; }
-        
-        .cart-item { 
-            display: grid; /* グリッドレイアウトに変更（重なり防止） */
-            grid-template-columns: 60px 1fr auto auto; /* 画像 | 詳細 | 数量 | 削除 */
-            gap: 15px; 
-            align-items: center; 
-            background: white; padding: 15px; margin-bottom: 10px; 
-            border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
-            position: relative;
-        }
-        
-        .item-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 3px; background: #eee; }
-        
-        .item-details { overflow: hidden; }
-        .item-details h4 { margin: 0 0 5px 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .item-details p { margin: 0; font-size: 13px; color: #666; }
+        /* --- テーブルレイアウト (最も確実な配置方法) --- */
+        .cart-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .cart-table td { padding: 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        .cart-table tr:last-child td { border-bottom: none; }
 
-        /* --- 数量操作エリア --- */
-        .qty-control { 
-            display: flex; align-items: center; 
-            border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #fff; 
-            z-index: 50; /* 高めに設定 */
-        }
+        /* 画像列 */
+        .col-img { width: 70px; }
+        .item-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 3px; background: #eee; }
+
+        /* 詳細列 */
+        .item-name { font-size: 14px; font-weight: bold; display: block; margin-bottom: 4px; }
+        .item-price { font-size: 13px; color: #666; }
+
+        /* 数量列 */
+        .col-qty { width: 120px; text-align: center; }
+        .qty-group { display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; border-radius: 4px; background: #fff; }
         
         .qty-btn { 
-            width: 40px; height: 40px; 
+            width: 36px; height: 36px; 
             border: none; background: #fff; font-size: 18px; 
             cursor: pointer; color: #333; display: flex; align-items: center; justify-content: center;
             touch-action: manipulation;
         }
         .qty-btn:active { background: #eee; }
-        
-        .qty-val { width: 36px; text-align: center; font-size: 14px; font-weight: bold; line-height: 40px; }
+        .qty-val { width: 36px; text-align: center; font-size: 14px; font-weight: bold; }
 
-        /* --- 削除ボタン（独立配置）--- */
+        /* 削除列 */
+        .col-del { width: 50px; text-align: center; }
         .remove-btn { 
-            width: 44px; height: 44px; 
-            color: #999; cursor: pointer; font-size: 28px; font-weight: bold;
+            width: 40px; height: 40px; 
+            color: #999; cursor: pointer; font-size: 24px; font-weight: bold;
             display: flex; align-items: center; justify-content: center; 
-            background: transparent; border: 1px solid transparent; border-radius: 50%;
-            transition: all 0.2s;
-            z-index: 99999; /* 最前面強制 */
-            position: relative; /* スタッキングコンテキスト生成 */
+            background: transparent; border: none; border-radius: 50%;
         }
         .remove-btn:hover { color: #ff4444; background: #ffebeb; }
 
-        /* スマホ対応 */
-        @media (max-width: 480px) { 
-            .cart-item { 
-                grid-template-columns: 60px 1fr; 
-                grid-template-rows: auto auto;
-                gap: 10px;
-            }
-            .item-thumb { grid-row: 1 / 3; }
-            .item-details { grid-column: 2 / 3; }
+        /* スマホ対応: テーブルをブロック崩しにする */
+        @media (max-width: 480px) {
+            .cart-table, .cart-table tbody, .cart-table tr, .cart-table td { display: block; width: 100%; box-sizing: border-box; }
+            .cart-table tr { margin-bottom: 10px; border-bottom: 2px solid #eee; position: relative; padding-bottom: 10px; }
+            .cart-table td { padding: 5px 15px; border: none; }
             
-            /* スマホでは数量と削除ボタンを下の行にまとめる */
-            .qty-control { grid-row: 2; grid-column: 2; justify-self: start; }
-            .remove-btn { 
-                grid-row: 1 / 3; grid-column: 3; 
-                align-self: center; /* 垂直中央 */
-                margin-left: -10px; 
-            }
+            .col-img { float: left; width: 70px; padding-top: 15px; }
+            .col-info { margin-left: 80px; padding-top: 15px; min-height: 70px; }
+            .col-qty { display: flex; justify-content: flex-end; padding-right: 15px; margin-top: -10px; }
+            .col-del { position: absolute; top: 5px; right: 5px; width: auto; }
         }
 
         /* --- 合計金額 --- */
@@ -116,10 +97,12 @@
 
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <h2>CART</h2>
-        <button type="button" class="btn btn-clear" style="width:auto;" onclick="window.clearCart()">カートを空にする</button>
+        <button type="button" class="btn btn-clear" style="width:auto;" onclick="window.app.clearCart()">カートを空にする</button>
     </div>
 
-    <ul id="cartList"></ul>
+    <table class="cart-table">
+        <tbody id="cartTableBody"></tbody>
+    </table>
     
     <div class="total-area">合計: ¥<span id="totalPrice">0</span></div>
 
@@ -131,152 +114,168 @@
 
     <div class="btn-group">
         <a href="index.html" class="btn btn-back">買い物を続ける</a>
-        <button type="button" class="btn btn-submit" id="orderBtn" onclick="window.submitOrder()">注文を確定する</button>
+        <button type="button" class="btn btn-submit" id="orderBtn" onclick="window.app.submitOrder()">注文を確定する</button>
     </div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzxEYZ9QWeaFpIIjq8FbQIZu2qM_3DY5dxWxqxY5zq8ASxA4GuE19gro-dNGz9Pv7-X/exec";
 
-        // --- 1. カート描画関数 ---
-        window.renderCart = function() {
-            try {
-                let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
-                if (!Array.isArray(cart)) cart = [];
-
-                const list = document.getElementById('cartList');
-                const totalEl = document.getElementById('totalPrice');
-                
-                list.innerHTML = '';
-                let total = 0;
-
-                if (cart.length === 0) {
-                    list.innerHTML = '<li style="text-align:center; padding:40px; color:#999;">カートは空です。</li>';
-                    totalEl.innerText = "0";
-                    return;
-                }
-
-                cart.forEach((item, index) => {
-                    let qty = parseInt(item.qty);
-                    // ★重要: 1未満でも描画を許可し、削除ロジックを動かす
-                    if (isNaN(qty)) qty = 1; 
-
-                    let price = parseInt(item.price);
-                    if (isNaN(price)) price = 0;
-
-                    const subtotal = price * qty;
-                    total += subtotal;
-                    
-                    // HTML構造を変更 (Grid Layout対応)
-                    list.innerHTML += `
-                        <li class="cart-item">
-                            <img src="${item.img || ''}" class="item-thumb" onerror="this.style.display='none'">
-                            
-                            <div class="item-details">
-                                <h4>${item.name}</h4>
-                                <p>¥${price.toLocaleString()}</p>
-                            </div>
-                            
-                            <div class="qty-control">
-                                <button type="button" class="qty-btn" onclick="window.updateQty(${index}, -1)">−</button>
-                                <span class="qty-val">${qty}</span>
-                                <button type="button" class="qty-btn" onclick="window.updateQty(${index}, 1)">+</button>
-                            </div>
-
-                            <button type="button" class="remove-btn" onclick="window.removeItem(${index})">×</button>
-                        </li>`;
-                });
-                totalEl.innerText = total.toLocaleString();
-
-            } catch (err) {
-                console.error("Render Error:", err);
-            }
-        };
-
-        // --- 2. 数量変更処理 (バグ修正版) ---
-        window.updateQty = function(index, change) {
-            let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
+        // アプリケーション名前空間
+        window.app = {
             
-            let currentQty = parseInt(cart[index].qty);
-            if (isNaN(currentQty)) currentQty = 1;
+            // --- 1. カート描画処理 ---
+            render: function() {
+                try {
+                    let cartRaw = localStorage.getItem('rudy_cart');
+                    let cart = [];
+                    
+                    try {
+                        cart = JSON.parse(cartRaw || '[]');
+                    } catch(e) {
+                        console.error("データ破損修復");
+                        cart = [];
+                        localStorage.removeItem('rudy_cart');
+                    }
 
-            let newQty = currentQty + change;
+                    if (!Array.isArray(cart)) cart = [];
 
-            // 0以下になったら削除確認
-            if (newQty < 1) {
-                if(confirm("この商品をカートから削除しますか？")) {
-                    cart.splice(index, 1);
-                } else {
-                    cart[index].qty = 1; // キャンセルなら1に戻す
+                    const tbody = document.getElementById('cartTableBody');
+                    const totalEl = document.getElementById('totalPrice');
+                    
+                    tbody.innerHTML = '';
+                    let total = 0;
+
+                    if (cart.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px; color:#999;">カートは空です。</td></tr>';
+                        totalEl.innerText = "0";
+                        return;
+                    }
+
+                    cart.forEach((item, index) => {
+                        let qty = parseInt(item.qty);
+                        if (isNaN(qty)) qty = 1;
+
+                        let price = parseInt(item.price);
+                        if (isNaN(price)) price = 0;
+
+                        const subtotal = price * qty;
+                        total += subtotal;
+                        
+                        // テーブル行として出力
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="col-img">
+                                    <img src="${item.img || ''}" class="item-thumb" onerror="this.style.display='none'">
+                                </td>
+                                <td class="col-info">
+                                    <span class="item-name">${item.name}</span>
+                                    <span class="item-price">¥${price.toLocaleString()}</span>
+                                </td>
+                                <td class="col-qty">
+                                    <div class="qty-group">
+                                        <button type="button" class="qty-btn" onclick="window.app.updateQty(${index}, -1)">−</button>
+                                        <span class="qty-val">${qty}</span>
+                                        <button type="button" class="qty-btn" onclick="window.app.updateQty(${index}, 1)">+</button>
+                                    </div>
+                                </td>
+                                <td class="col-del">
+                                    <button type="button" class="remove-btn" onclick="window.app.removeItem(${index})">×</button>
+                                </td>
+                            </tr>`;
+                    });
+                    totalEl.innerText = total.toLocaleString();
+
+                } catch (err) {
+                    console.error("描画エラー:", err);
                 }
-            } else {
-                cart[index].qty = newQty;
-            }
+            },
 
-            localStorage.setItem('rudy_cart', JSON.stringify(cart));
-            window.renderCart();
-        };
-
-        // --- 3. 個別削除処理 (絶対動く版) ---
-        window.removeItem = function(index) {
-            // alert("削除ボタンが押されました"); // デバッグ用
-            if(confirm("削除してもよろしいですか？")) {
+            // --- 2. 数量変更処理 ---
+            updateQty: function(index, change) {
                 let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
-                cart.splice(index, 1);
+                let currentQty = parseInt(cart[index].qty);
+                if (isNaN(currentQty)) currentQty = 1;
+
+                let newQty = currentQty + change;
+
+                // 0以下になったら削除確認
+                if (newQty < 1) {
+                    if(confirm("カートから削除しますか？")) {
+                        cart.splice(index, 1);
+                    } else {
+                        cart[index].qty = 1; // キャンセル
+                    }
+                } else {
+                    cart[index].qty = newQty;
+                }
+
                 localStorage.setItem('rudy_cart', JSON.stringify(cart));
-                window.renderCart();
+                this.render();
+            },
+
+            // --- 3. 削除処理 ---
+            removeItem: function(index) {
+                if(confirm("削除してもよろしいですか？")) {
+                    let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
+                    cart.splice(index, 1);
+                    localStorage.setItem('rudy_cart', JSON.stringify(cart));
+                    this.render();
+                }
+            },
+
+            // --- 4. 全消去処理 ---
+            clearCart: function() {
+                if(confirm("カートを空にしますか？")) {
+                    localStorage.removeItem('rudy_cart');
+                    this.render();
+                }
+            },
+
+            // --- 5. 注文送信処理 ---
+            submitOrder: async function() {
+                const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
+                if (cart.length === 0) return alert("カートが空です");
+
+                const company = document.getElementById('company').value;
+                const person = document.getElementById('person').value;
+                const phone = document.getElementById('phone').value;
+                const email = document.getElementById('email').value;
+                const note = document.getElementById('note').value;
+
+                if (!company || !person || !phone || !email) {
+                    return alert("必須項目を入力してください");
+                }
+
+                const btn = document.getElementById('orderBtn');
+                btn.disabled = true;
+                btn.innerText = "送信中...";
+
+                try {
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ company, person, phone, email, note, items: cart })
+                    });
+                    
+                    document.getElementById('successModal').style.display = 'flex';
+                    localStorage.removeItem('rudy_cart');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html'; 
+                    }, 3000);
+
+                } catch (error) {
+                    console.error(error);
+                    alert("エラーが発生しました。");
+                    btn.disabled = false;
+                    btn.innerText = "注文を確定する";
+                }
             }
         };
 
-        // --- 4. 全削除処理 ---
-        window.clearCart = function() {
-            if(confirm("カートの中身をすべて空にしますか？")) {
-                localStorage.removeItem('rudy_cart');
-                window.renderCart();
-            }
-        };
-
-        // --- 5. 注文送信処理 ---
-        window.submitOrder = async function() {
-            const cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
-            if (cart.length === 0) return alert("カートが空です");
-
-            const company = document.getElementById('company').value;
-            const person = document.getElementById('person').value;
-            const phone = document.getElementById('phone').value;
-            const email = document.getElementById('email').value;
-            const note = document.getElementById('note').value;
-
-            if (!company || !person || !phone || !email) {
-                return alert("必須項目を入力してください");
-            }
-
-            const btn = document.getElementById('orderBtn');
-            btn.disabled = true;
-            btn.innerText = "送信中...";
-
-            try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ company, person, phone, email, note, items: cart })
-                });
-                
-                document.getElementById('successModal').style.display = 'flex';
-                localStorage.removeItem('rudy_cart');
-                
-                setTimeout(() => {
-                    window.location.href = 'index.html'; 
-                }, 3000);
-
-            } catch (error) {
-                console.error(error);
-                alert("エラーが発生しました。");
-                btn.disabled = false;
-                btn.innerText = "注文を確定する";
-            }
-        };
-
-        // 初期化
-        window.onload = window.renderCart;
+        // 初期化実行 (DOM読み込み後)
+        document.addEventListener('DOMContentLoaded', function() {
+            window.app.render();
+        });
     </script>
 </body>
 </html>
