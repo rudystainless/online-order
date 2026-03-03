@@ -3,281 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ショッピングカート - RUDY</title>
+    <title>【診断モード】ショッピングカート - RUDY</title>
     <style>
         /* --- 基本設定 --- */
-        body { font-family: "Helvetica Neue", Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: #f9f9f9; color: #333; }
-        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; text-align: center; }
+        body { font-family: "Helvetica Neue", Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: #ffebeb; color: #333; border: 5px solid red; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; text-align: center; color: red; }
 
-        /* --- テーブルレイアウト (V23の安定版を維持) --- */
-        .cart-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .cart-table td { padding: 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        .cart-table tr:last-child td { border-bottom: none; }
+        /* --- 診斷面板 --- */
+        #debugPanel {
+            background: #333; color: #0f0; padding: 15px; margin-bottom: 20px;
+            font-family: monospace; font-size: 12px; border-radius: 5px;
+            max-height: 200px; overflow-y: auto;
+        }
 
-        /* 列設定 */
-        .col-img { width: 70px; }
-        .item-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 3px; background: #eee; }
+        /* --- 購物車列表 --- */
+        #cartList { list-style: none; padding: 0; margin-bottom: 30px; background: white; }
+        .cart-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px; border-bottom: 1px solid #eee;
+            position: relative; z-index: 1;
+        }
         
-        .item-name { font-size: 14px; font-weight: bold; display: block; margin-bottom: 4px; }
-        .item-price { font-size: 13px; color: #666; }
-
-        .col-qty { width: 140px; text-align: center; }
-        .qty-group { display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; border-radius: 4px; background: #fff; }
+        .item-info { display: flex; align-items: center; gap: 15px; flex-grow: 1; }
         
-        /* ボタン設定: サイズ特大化 */
+        /* --- 按鈕區域 (極端強調) --- */
+        .qty-wrapper { 
+            display: flex; align-items: center; gap: 10px; margin-left: auto; 
+            background: #eef; padding: 5px; border: 2px solid blue; /* 視覺除錯 */
+            position: relative; z-index: 9999;
+        }
+        
         .qty-btn { 
-            width: 44px; height: 44px; 
-            border: none; background: #fff; font-size: 18px; 
-            cursor: pointer; color: #333; display: flex; align-items: center; justify-content: center;
-            touch-action: manipulation;
+            width: 50px; height: 50px; 
+            background: #ddd; border: 2px solid black; font-size: 20px; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
-        .qty-btn:active { background: #eee; }
-        .qty-val { width: 40px; text-align: center; font-size: 14px; font-weight: bold; }
-
-        .col-del { width: 60px; text-align: center; }
+        
         .remove-btn { 
-            width: 44px; height: 44px; 
-            color: #999; cursor: pointer; font-size: 28px; font-weight: bold;
-            display: flex; align-items: center; justify-content: center; 
-            background: transparent; border: none; border-radius: 50%;
-        }
-        .remove-btn:hover { color: #ff4444; background: #ffebeb; }
-
-        /* スマホ対応 */
-        @media (max-width: 480px) {
-            .cart-table, .cart-table tbody, .cart-table tr, .cart-table td { display: block; width: 100%; box-sizing: border-box; }
-            .cart-table tr { margin-bottom: 10px; border-bottom: 2px solid #eee; position: relative; padding-bottom: 10px; }
-            .cart-table td { padding: 5px 15px; border: none; }
-            
-            .col-img { float: left; width: 70px; padding-top: 15px; }
-            .col-info { margin-left: 80px; padding-top: 15px; min-height: 70px; }
-            .col-qty { display: flex; justify-content: flex-end; padding-right: 15px; margin-top: -10px; }
-            .col-del { position: absolute; top: 5px; right: 5px; width: auto; }
+            width: 50px; height: 50px; 
+            background: red; color: white; border: 2px solid black; font-size: 24px; 
+            cursor: pointer; margin-left: 10px;
         }
 
-        /* --- 合計金額 --- */
-        .total-area { text-align: right; font-size: 18px; font-weight: bold; margin-bottom: 30px; padding: 15px; background: #fff; border-top: 2px solid #333; }
-
-        /* --- フォーム --- */
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
-        textarea { height: 80px; resize: vertical; }
-
-        /* --- ボタン --- */
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        .btn { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; font-size: 14px; border-radius: 4px; transition: 0.2s; text-align: center; text-decoration: none; display: inline-block; }
-        .btn-submit { background: #1a1a1a; color: white; }
-        .btn-submit:disabled { background: #999; cursor: not-allowed; }
-        .btn-back { background: #ddd; color: #333; }
-        .btn-clear { background: transparent; color: #666; border: 1px solid #ccc; margin-bottom: 20px; width: 100%; font-size: 12px; padding: 10px; cursor: pointer; }
-
-        /* --- 成功モーダル --- */
-        #successModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center; }
-        .checkmark { width: 80px; height: 80px; border-radius: 50%; display: block; stroke-width: 2; stroke: #fff; stroke-miterlimit: 10; margin: 0 auto 20px; box-shadow: inset 0px 0px 0px #7ac142; animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both; }
-        .checkmark__circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 2; stroke-miterlimit: 10; stroke: #7ac142; fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
-        .checkmark__check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards; }
-        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
-        @keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
-        @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 50px #7ac142; } }
+        /* --- 其他 --- */
+        .total-area { text-align: right; font-size: 18px; font-weight: bold; margin-bottom: 30px; padding: 15px; background: #fff; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 15px; background: #333; color: white; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="successModal">
-        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-            <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
-            <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-        </svg>
-        <h3>注文が完了しました！</h3>
-        <p>ご注文ありがとうございます。</p>
-    </div>
-
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h2>CART</h2>
-        <button type="button" class="btn btn-clear" style="width:auto;" onclick="window.app.clearCart()">カートを空にする</button>
-    </div>
-
-    <table class="cart-table">
-        <tbody id="cartTableBody"></tbody>
-    </table>
+    <h2>⚠️ 診斷模式 (Diagnostic Mode) ⚠️</h2>
     
+    <div id="debugPanel">System Log:<br></div>
+
+    <div style="margin-bottom: 20px;">
+        <button onclick="window.injectFakeData()" style="padding: 10px; background: blue; color: white;">1. 注入假資料 (Inject Fake Data)</button>
+        <button onclick="window.clearLocalStorage()" style="padding: 10px; background: red; color: white;">2. 清除所有資料 (Clear All)</button>
+    </div>
+
+    <ul id="cartList"></ul>
     <div class="total-area">合計: ¥<span id="totalPrice">0</span></div>
 
-    <div class="form-group"><label>会社名 (必須)</label><input type="text" id="company" placeholder="例: 株式会社RUDY" required></div>
-    <div class="form-group"><label>ご担当者名 (必須)</label><input type="text" id="person" placeholder="例: 山田 太郎" required></div>
-    <div class="form-group"><label>電話番号 (必須)</label><input type="text" id="phone" placeholder="例: 03-1234-5678" required></div>
-    <div class="form-group"><label>メールアドレス (必須)</label><input type="email" id="email" placeholder="注文確認メールをお送りします" required></div>
-    <div class="form-group"><label>備考</label><textarea id="note" placeholder="配送希望日などがあればご記入ください"></textarea></div>
-
     <div class="btn-group">
-        <a href="index.html" class="btn btn-back">買い物を続ける</a>
-        <button type="button" class="btn btn-submit" id="orderBtn" onclick="window.app.submitOrder()">注文を確定する</button>
+        <button class="btn" onclick="alert('Checkout disabled in diagnostic mode')">注文不可 (診斷中)</button>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzxEYZ9QWeaFpIIjq8FbQIZu2qM_3DY5dxWxqxY5zq8ASxA4GuE19gro-dNGz9Pv7-X/exec";
+        // --- 診斷日誌工具 ---
+        function log(msg) {
+            const panel = document.getElementById('debugPanel');
+            const time = new Date().toLocaleTimeString();
+            panel.innerHTML += `[${time}] ${msg}<br>`;
+            console.log(`[Diagnostic] ${msg}`);
+            panel.scrollTop = panel.scrollHeight;
+        }
 
-        window.app = {
-            
-            // --- 1. 描画処理 (データ整合性の確保) ---
-            render: function() {
+        // --- 1. 錯誤捕捉 (全域) ---
+        window.onerror = function(msg, url, line) {
+            alert("致命錯誤 (Fatal Error):\n" + msg + "\nLine: " + line);
+            log("ERROR: " + msg);
+            return true;
+        };
+
+        // --- 2. 注入假資料 (測試用) ---
+        window.injectFakeData = function() {
+            log("注入測試資料...");
+            const fakeData = [
+                { name: "TEST ITEM A", price: 1000, qty: 1, img: "" },
+                { name: "TEST ITEM B", price: 2500, qty: 2, img: "" }
+            ];
+            localStorage.setItem('rudy_cart', JSON.stringify(fakeData));
+            log("資料已寫入 localStorage");
+            window.renderCart();
+        };
+
+        // --- 3. 清除資料 ---
+        window.clearLocalStorage = function() {
+            log("清除 localStorage...");
+            localStorage.removeItem('rudy_cart');
+            window.renderCart();
+        };
+
+        // --- 4. 核心渲染 (含除錯檢查) ---
+        window.renderCart = function() {
+            try {
+                log("開始渲染 (Render Start)...");
+                const list = document.getElementById('cartList');
+                if (!list) throw new Error("找不到 #cartList 元素!");
+
+                let cartRaw = localStorage.getItem('rudy_cart');
+                log("讀取資料: " + (cartRaw ? cartRaw.substring(0, 50) + "..." : "null"));
+
+                let cart = [];
                 try {
-                    let cart = this.getCartData();
-                    const tbody = document.getElementById('cartTableBody');
-                    const totalEl = document.getElementById('totalPrice');
-                    
-                    tbody.innerHTML = '';
-                    let total = 0;
-
-                    if (cart.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px; color:#999;">カートは空です。</td></tr>';
-                        totalEl.innerText = "0";
-                        return;
-                    }
-
-                    cart.forEach((item, index) => {
-                        // ★重要: 表示時点で必ず数値化する
-                        let qty = parseInt(item.qty);
-                        if (isNaN(qty)) qty = 1;
-                        
-                        let price = parseInt(item.price);
-                        if (isNaN(price)) price = 0;
-
-                        const subtotal = price * qty;
-                        total += subtotal;
-                        
-                        // HTML生成
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="col-img">
-                                    <img src="${item.img || ''}" class="item-thumb" onerror="this.style.display='none'">
-                                </td>
-                                <td class="col-info">
-                                    <span class="item-name">${item.name}</span>
-                                    <span class="item-price">¥${price.toLocaleString()}</span>
-                                </td>
-                                <td class="col-qty">
-                                    <div class="qty-group">
-                                        <button type="button" class="qty-btn" onclick="window.app.updateQty(${index}, -1)">−</button>
-                                        <span class="qty-val">${qty}</span>
-                                        <button type="button" class="qty-btn" onclick="window.app.updateQty(${index}, 1)">+</button>
-                                    </div>
-                                </td>
-                                <td class="col-del">
-                                    <button type="button" class="remove-btn" onclick="window.app.removeItem(${index})">×</button>
-                                </td>
-                            </tr>`;
-                    });
-                    totalEl.innerText = total.toLocaleString();
-
-                } catch (err) {
-                    console.error("描画エラー:", err);
-                }
-            },
-
-            // --- 2. 数量変更ロジック (シンプル化) ---
-            updateQty: function(index, change) {
-                let cart = this.getCartData();
-                let currentQty = parseInt(cart[index].qty);
-                if (isNaN(currentQty)) currentQty = 1;
-
-                // マイナスボタンが押された時の特別処理
-                if (change === -1) {
-                    // 1以下なら削除確認へ
-                    if (currentQty <= 1) {
-                        if (confirm("カートから削除しますか？")) {
-                            cart.splice(index, 1);
-                        }
-                    } else {
-                        // 1より大きければ単に減らす
-                        cart[index].qty = currentQty - 1;
-                    }
-                } 
-                // プラスボタンが押された時
-                else if (change === 1) {
-                    cart[index].qty = currentQty + 1;
-                }
-
-                this.saveCartData(cart);
-            },
-
-            // --- 3. 削除ロジック ---
-            removeItem: function(index) {
-                if(confirm("削除してもよろしいですか？")) {
-                    let cart = this.getCartData();
-                    cart.splice(index, 1);
-                    this.saveCartData(cart);
-                }
-            },
-
-            // --- 4. 全消去ロジック ---
-            clearCart: function() {
-                if(confirm("カートを空にしますか？")) {
-                    localStorage.removeItem('rudy_cart');
-                    this.render();
-                }
-            },
-
-            // --- 5. データ取得ヘルパー (エラー防止) ---
-            getCartData: function() {
-                try {
-                    let data = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
-                    if (!Array.isArray(data)) return [];
-                    return data;
+                    cart = JSON.parse(cartRaw || '[]');
                 } catch(e) {
-                    return [];
-                }
-            },
-
-            // --- 6. データ保存ヘルパー ---
-            saveCartData: function(cart) {
-                localStorage.setItem('rudy_cart', JSON.stringify(cart));
-                this.render();
-            },
-
-            // --- 7. 注文送信 ---
-            submitOrder: async function() {
-                const cart = this.getCartData();
-                if (cart.length === 0) return alert("カートが空です");
-
-                const company = document.getElementById('company').value;
-                const person = document.getElementById('person').value;
-                const phone = document.getElementById('phone').value;
-                const email = document.getElementById('email').value;
-                const note = document.getElementById('note').value;
-
-                if (!company || !person || !phone || !email) {
-                    return alert("必須項目を入力してください");
+                    log("JSON 解析失敗，重置資料");
+                    cart = [];
                 }
 
-                const btn = document.getElementById('orderBtn');
-                btn.disabled = true;
-                btn.innerText = "送信中...";
+                if (!Array.isArray(cart)) cart = [];
 
-                try {
-                    await fetch(API_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ company, person, phone, email, note, items: cart })
-                    });
-                    
-                    document.getElementById('successModal').style.display = 'flex';
-                    localStorage.removeItem('rudy_cart');
-                    setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+                list.innerHTML = '';
+                let total = 0;
 
-                } catch (error) {
-                    console.error(error);
-                    alert("エラーが発生しました。");
-                    btn.disabled = false;
-                    btn.innerText = "注文を確定する";
+                if (cart.length === 0) {
+                    list.innerHTML = '<li style="padding:20px; text-align:center;">購物車是空的 (Cart is empty)</li>';
+                    document.getElementById('totalPrice').innerText = "0";
+                    return;
                 }
+
+                cart.forEach((item, index) => {
+                    let qty = parseInt(item.qty);
+                    if (isNaN(qty)) qty = 1;
+                    let price = parseInt(item.price);
+                    if (isNaN(price)) price = 0;
+
+                    total += price * qty;
+
+                    // 生成 HTML (加上 onclick Log)
+                    list.innerHTML += `
+                        <li class="cart-item">
+                            <div class="item-info">
+                                <b>${item.name}</b> (¥${price})
+                            </div>
+                            
+                            <div class="qty-wrapper">
+                                <button type="button" class="qty-btn" onclick="window.debugUpdateQty(${index}, -1)">−</button>
+                                <span style="margin: 0 10px; font-weight:bold;">${qty}</span>
+                                <button type="button" class="qty-btn" onclick="window.debugUpdateQty(${index}, 1)">+</button>
+                                <button type="button" class="remove-btn" onclick="window.debugRemoveItem(${index})">×</button>
+                            </div>
+                        </li>`;
+                });
+
+                document.getElementById('totalPrice').innerText = total.toLocaleString();
+                log("渲染完成 (Render Complete)");
+
+            } catch (err) {
+                log("渲染崩潰: " + err.message);
+                alert("渲染崩潰: " + err.message);
             }
         };
 
-        // 初期化
-        document.addEventListener('DOMContentLoaded', function() {
-            window.app.render();
-        });
+        // --- 5. 操作邏輯 (含除錯) ---
+        window.debugUpdateQty = function(index, change) {
+            log(`點擊: updateQty(${index}, ${change})`);
+            
+            let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
+            let currentQty = parseInt(cart[index].qty) || 1;
+            let newQty = currentQty + change;
+
+            log(`計算: ${currentQty} -> ${newQty}`);
+
+            if (newQty <= 0) {
+                log("觸發刪除邏輯 (Delete Logic)");
+                if(confirm("確定刪除? (Confirm Delete)")) {
+                    cart.splice(index, 1);
+                    log("已刪除項目");
+                } else {
+                    cart[index].qty = 1;
+                    log("取消刪除");
+                }
+            } else {
+                cart[index].qty = newQty;
+            }
+
+            localStorage.setItem('rudy_cart', JSON.stringify(cart));
+            window.renderCart();
+        };
+
+        window.debugRemoveItem = function(index) {
+            log(`點擊: removeItem(${index})`);
+            if(confirm("確定刪除? (Confirm Delete)")) {
+                let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
+                cart.splice(index, 1);
+                localStorage.setItem('rudy_cart', JSON.stringify(cart));
+                log("項目已移除");
+                window.renderCart();
+            }
+        };
+
+        // --- 初始化 ---
+        window.onload = function() {
+            log("頁面載入完成 (Page Loaded)");
+            // 自動注入假資料以便測試
+            if (!localStorage.getItem('rudy_cart')) {
+                window.injectFakeData();
+            } else {
+                window.renderCart();
+            }
+        };
     </script>
 </body>
 </html>
