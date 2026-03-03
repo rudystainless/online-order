@@ -11,48 +11,69 @@
 
         /* --- カートリスト --- */
         #cartList { list-style: none; padding: 0; margin-bottom: 30px; }
+        
         .cart-item { 
-            display: flex; justify-content: space-between; align-items: center; 
+            display: grid; /* グリッドレイアウトに変更（重なり防止） */
+            grid-template-columns: 60px 1fr auto auto; /* 画像 | 詳細 | 数量 | 削除 */
+            gap: 15px; 
+            align-items: center; 
             background: white; padding: 15px; margin-bottom: 10px; 
             border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
-            flex-wrap: wrap; 
+            position: relative;
         }
         
-        .item-info { display: flex; align-items: center; gap: 15px; flex-grow: 1; }
         .item-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 3px; background: #eee; }
-        .item-details h4 { margin: 0 0 5px 0; font-size: 14px; }
+        
+        .item-details { overflow: hidden; }
+        .item-details h4 { margin: 0 0 5px 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .item-details p { margin: 0; font-size: 13px; color: #666; }
 
         /* --- 数量操作エリア --- */
-        .qty-wrapper { display: flex; align-items: center; gap: 10px; margin-left: auto; z-index: 10; }
+        .qty-control { 
+            display: flex; align-items: center; 
+            border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #fff; 
+            z-index: 50; /* 高めに設定 */
+        }
         
-        .qty-control { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #fff; }
-        
-        /* ボタン設定: サイズを大きく、タッチ操作を優先 */
         .qty-btn { 
-            width: 44px; height: 44px; 
+            width: 40px; height: 40px; 
             border: none; background: #fff; font-size: 18px; 
             cursor: pointer; color: #333; display: flex; align-items: center; justify-content: center;
             touch-action: manipulation;
         }
         .qty-btn:active { background: #eee; }
         
-        .qty-val { width: 40px; text-align: center; font-size: 14px; font-weight: bold; border-left: 1px solid #ddd; border-right: 1px solid #ddd; line-height: 44px; }
+        .qty-val { width: 36px; text-align: center; font-size: 14px; font-weight: bold; line-height: 40px; }
 
-        /* 削除ボタン（×） */
+        /* --- 削除ボタン（独立配置）--- */
         .remove-btn { 
             width: 44px; height: 44px; 
-            margin-left: 5px; color: #999; cursor: pointer; font-size: 24px; font-weight: bold;
+            color: #999; cursor: pointer; font-size: 28px; font-weight: bold;
             display: flex; align-items: center; justify-content: center; 
             background: transparent; border: 1px solid transparent; border-radius: 50%;
             transition: all 0.2s;
+            z-index: 99999; /* 最前面強制 */
+            position: relative; /* スタッキングコンテキスト生成 */
         }
-        .remove-btn:hover { color: #ff4444; background: #ffebeb; border-color: #ffcccc; }
+        .remove-btn:hover { color: #ff4444; background: #ffebeb; }
 
         /* スマホ対応 */
         @media (max-width: 480px) { 
-            .cart-item { align-items: flex-start; } 
-            .qty-wrapper { margin-top: 15px; width: 100%; justify-content: flex-end; border-top: 1px solid #eee; padding-top: 10px; } 
+            .cart-item { 
+                grid-template-columns: 60px 1fr; 
+                grid-template-rows: auto auto;
+                gap: 10px;
+            }
+            .item-thumb { grid-row: 1 / 3; }
+            .item-details { grid-column: 2 / 3; }
+            
+            /* スマホでは数量と削除ボタンを下の行にまとめる */
+            .qty-control { grid-row: 2; grid-column: 2; justify-self: start; }
+            .remove-btn { 
+                grid-row: 1 / 3; grid-column: 3; 
+                align-self: center; /* 垂直中央 */
+                margin-left: -10px; 
+            }
         }
 
         /* --- 合計金額 --- */
@@ -64,14 +85,12 @@
         input, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
         textarea { height: 80px; resize: vertical; }
 
-        /* --- フッターボタン --- */
+        /* --- ボタン --- */
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         .btn { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; font-size: 14px; border-radius: 4px; transition: 0.2s; text-align: center; text-decoration: none; display: inline-block; }
         .btn-submit { background: #1a1a1a; color: white; }
         .btn-submit:disabled { background: #999; cursor: not-allowed; }
         .btn-back { background: #ddd; color: #333; }
-        
-        /* 全消去ボタン */
         .btn-clear { background: transparent; color: #666; border: 1px solid #ccc; margin-bottom: 20px; width: 100%; font-size: 12px; padding: 10px; cursor: pointer; }
 
         /* --- 成功モーダル --- */
@@ -119,10 +138,8 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbzxEYZ9QWeaFpIIjq8FbQIZu2qM_3DY5dxWxqxY5zq8ASxA4GuE19gro-dNGz9Pv7-X/exec";
 
         // --- 1. カート描画関数 ---
-        // グローバル関数として定義し、HTML側からの呼び出しを確実にする
         window.renderCart = function() {
             try {
-                // データの取得と整形
                 let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
                 if (!Array.isArray(cart)) cart = [];
 
@@ -132,18 +149,16 @@
                 list.innerHTML = '';
                 let total = 0;
 
-                // カートが空の場合
                 if (cart.length === 0) {
                     list.innerHTML = '<li style="text-align:center; padding:40px; color:#999;">カートは空です。</li>';
                     totalEl.innerText = "0";
                     return;
                 }
 
-                // アイテム生成ループ
                 cart.forEach((item, index) => {
-                    // 数値への強制変換 (ここが重要)
                     let qty = parseInt(item.qty);
-                    if (isNaN(qty)) qty = 1; // 1未満チェックはここでは外す（削除ロジックのため）
+                    // ★重要: 1未満でも描画を許可し、削除ロジックを動かす
+                    if (isNaN(qty)) qty = 1; 
 
                     let price = parseInt(item.price);
                     if (isNaN(price)) price = 0;
@@ -151,25 +166,23 @@
                     const subtotal = price * qty;
                     total += subtotal;
                     
-                    // HTML生成 (onclick属性で関数を直接指定 - 最も安定した方法)
+                    // HTML構造を変更 (Grid Layout対応)
                     list.innerHTML += `
                         <li class="cart-item">
-                            <div class="item-info">
-                                <img src="${item.img || ''}" class="item-thumb" onerror="this.style.display='none'">
-                                <div class="item-details">
-                                    <h4>${item.name}</h4>
-                                    <p>¥${price.toLocaleString()}</p>
-                                </div>
+                            <img src="${item.img || ''}" class="item-thumb" onerror="this.style.display='none'">
+                            
+                            <div class="item-details">
+                                <h4>${item.name}</h4>
+                                <p>¥${price.toLocaleString()}</p>
                             </div>
                             
-                            <div class="qty-wrapper">
-                                <div class="qty-control">
-                                    <button type="button" class="qty-btn" onclick="window.updateQty(${index}, -1)">−</button>
-                                    <span class="qty-val">${qty}</span>
-                                    <button type="button" class="qty-btn" onclick="window.updateQty(${index}, 1)">+</button>
-                                </div>
-                                <button type="button" class="remove-btn" onclick="window.removeItem(${index})">×</button>
+                            <div class="qty-control">
+                                <button type="button" class="qty-btn" onclick="window.updateQty(${index}, -1)">−</button>
+                                <span class="qty-val">${qty}</span>
+                                <button type="button" class="qty-btn" onclick="window.updateQty(${index}, 1)">+</button>
                             </div>
+
+                            <button type="button" class="remove-btn" onclick="window.removeItem(${index})">×</button>
                         </li>`;
                 });
                 totalEl.innerText = total.toLocaleString();
@@ -179,27 +192,23 @@
             }
         };
 
-        // --- 2. 数量変更処理 (ロジック修正版) ---
+        // --- 2. 数量変更処理 (バグ修正版) ---
         window.updateQty = function(index, change) {
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             
-            // 数値として確実に計算
             let currentQty = parseInt(cart[index].qty);
             if (isNaN(currentQty)) currentQty = 1;
 
             let newQty = currentQty + change;
 
-            // ★修正ポイント: 計算結果が0以下になった時点で削除確認を出す
-            // 以前はここで強制的に1に戻していたため、削除確認が出なかった可能性が高い
+            // 0以下になったら削除確認
             if (newQty < 1) {
                 if(confirm("この商品をカートから削除しますか？")) {
                     cart.splice(index, 1);
                 } else {
-                    // キャンセルの場合のみ、最小値の1に戻す
-                    cart[index].qty = 1;
+                    cart[index].qty = 1; // キャンセルなら1に戻す
                 }
             } else {
-                // 1以上ならそのまま更新
                 cart[index].qty = newQty;
             }
 
@@ -207,8 +216,9 @@
             window.renderCart();
         };
 
-        // --- 3. 個別削除処理 ---
+        // --- 3. 個別削除処理 (絶対動く版) ---
         window.removeItem = function(index) {
+            // alert("削除ボタンが押されました"); // デバッグ用
             if(confirm("削除してもよろしいですか？")) {
                 let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
                 cart.splice(index, 1);
@@ -265,7 +275,7 @@
             }
         };
 
-        // 初期化実行
+        // 初期化
         window.onload = window.renderCart;
     </script>
 </body>
