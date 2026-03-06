@@ -9,51 +9,96 @@
         body { font-family: "Helvetica Neue", Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: #f9f9f9; color: #333; }
         h2 { border-bottom: 2px solid #333; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; text-align: center; }
 
-        /* --- テーブルレイアウト (安定版) --- */
+        /* --- テーブルレイアウト (PC用) --- */
         .cart-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .cart-table td { padding: 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
         .cart-table tr:last-child td { border-bottom: none; }
 
-        /* 列設定 */
-        .col-img { width: 70px; }
-        .item-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 3px; background: #eee; }
+        /* PCでの列幅設定 */
+        .col-img { width: 80px; text-align: center; }
+        .item-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; background: #eee; display: block; margin: 0 auto; }
         
-        .item-name { font-size: 14px; font-weight: bold; display: block; margin-bottom: 4px; }
+        .col-info { text-align: left; }
+        .item-name { font-size: 14px; font-weight: bold; display: block; margin-bottom: 4px; color: #333; }
         .item-price { font-size: 13px; color: #666; }
 
-        /* 数量操作エリア */
         .col-qty { width: 140px; text-align: center; }
-        .qty-group { display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; border-radius: 4px; background: #fff; }
+        .qty-group { display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; border-radius: 4px; background: #fff; width: 110px; margin: 0 auto; }
         
         .qty-btn { 
-            width: 44px; height: 44px; 
-            border: none; background: #fff; font-size: 20px; 
+            width: 35px; height: 35px; 
+            border: none; background: #fff; font-size: 18px; 
             cursor: pointer; color: #333; display: flex; align-items: center; justify-content: center;
             touch-action: manipulation;
         }
         .qty-btn:active { background: #eee; }
-        .qty-val { width: 40px; text-align: center; font-size: 14px; font-weight: bold; }
+        .qty-val { width: 40px; text-align: center; font-size: 14px; font-weight: bold; border-left: 1px solid #eee; border-right: 1px solid #eee; }
 
-        /* 削除ボタン */
         .col-del { width: 60px; text-align: center; }
         .remove-btn { 
-            width: 44px; height: 44px; 
-            color: #ccc; cursor: pointer; font-size: 28px; font-weight: bold;
+            width: 40px; height: 40px; 
+            color: #999; cursor: pointer; font-size: 24px; font-weight: bold;
             display: flex; align-items: center; justify-content: center; 
             background: transparent; border: none; border-radius: 50%;
         }
         .remove-btn:hover { color: #ff4444; background: #ffebeb; }
 
-        /* スマホ対応 */
+        /* --- スマホ対応 (カード型レイアウトへの変形) --- */
         @media (max-width: 480px) {
-            .cart-table, .cart-table tbody, .cart-table tr, .cart-table td { display: block; width: 100%; box-sizing: border-box; }
-            .cart-table tr { margin-bottom: 10px; border-bottom: 2px solid #eee; position: relative; padding-bottom: 10px; }
-            .cart-table td { padding: 5px 15px; border: none; }
+            /* テーブル構造を解除してブロック要素にする */
+            .cart-table, .cart-table tbody, .cart-table tr, .cart-table td { 
+                display: block; width: 100%; box-sizing: border-box; 
+            }
             
-            .col-img { float: left; width: 70px; padding-top: 15px; }
-            .col-info { margin-left: 80px; padding-top: 15px; min-height: 70px; }
-            .col-qty { display: flex; justify-content: flex-end; padding-right: 15px; margin-top: -10px; }
-            .col-del { position: absolute; top: 5px; right: 5px; width: auto; }
+            .cart-table thead { display: none; } /* ヘッダーは非表示 */
+
+            .cart-table tr { 
+                margin-bottom: 15px; 
+                background: white; 
+                border: 1px solid #eee; 
+                border-radius: 8px; 
+                padding: 15px; 
+                position: relative; /* 子要素の絶対配置基準 */
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                display: grid;
+                grid-template-columns: 70px 1fr; /* 画像 | 情報エリア */
+                grid-template-rows: auto auto;    /* 情報 | 操作エリア */
+                gap: 10px;
+            }
+
+            .cart-table td { 
+                padding: 0; border: none; 
+            }
+            
+            /* 1. 画像エリア (左上) */
+            .col-img { 
+                grid-column: 1; grid-row: 1 / 3; 
+                width: auto; text-align: left;
+            }
+            .item-thumb { width: 70px; height: 70px; margin: 0; }
+
+            /* 2. 情報エリア (右上) */
+            .col-info { 
+                grid-column: 2; grid-row: 1; 
+                padding-right: 30px; /* 削除ボタンのスペース確保 */
+            }
+            .item-name { font-size: 15px; margin-bottom: 5px; }
+
+            /* 3. 数量エリア (右下) */
+            .col-qty { 
+                grid-column: 2; grid-row: 2; 
+                width: auto; text-align: left;
+                display: flex; justify-content: flex-start;
+            }
+            .qty-group { margin: 0; height: 40px; } /* 左寄せ */
+            .qty-btn { width: 40px; height: 40px; font-size: 20px; } /* スマホ用にボタン拡大 */
+
+            /* 4. 削除ボタン (絶対配置で右上へ) */
+            .col-del { 
+                position: absolute; top: 10px; right: 5px; 
+                width: auto; height: auto;
+            }
+            .remove-btn { width: 44px; height: 44px; } /* タップしやすく */
         }
 
         /* --- 合計金額 --- */
@@ -66,8 +111,10 @@
         textarea { height: 80px; resize: vertical; }
 
         /* --- フッターボタン --- */
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        .btn { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; font-size: 14px; border-radius: 4px; transition: 0.2s; text-align: center; text-decoration: none; display: inline-block; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; flex-direction: column; } /* スマホでは縦並び推奨 */
+        @media (min-width: 481px) { .btn-group { flex-direction: row; } } /* PCでは横並び */
+
+        .btn { width: 100%; padding: 15px; border: none; cursor: pointer; font-weight: bold; font-size: 14px; border-radius: 4px; transition: 0.2s; text-align: center; text-decoration: none; display: inline-block; box-sizing: border-box; }
         .btn-submit { background: #1a1a1a; color: white; }
         .btn-submit:disabled { background: #999; cursor: not-allowed; }
         .btn-back { background: #ddd; color: #333; }
@@ -118,10 +165,7 @@
     </div>
 
     <script>
-        // Google Apps ScriptのURL
         const API_URL = "https://script.google.com/macros/s/AKfycbzxEYZ9QWeaFpIIjq8FbQIZu2qM_3DY5dxWxqxY5zq8ASxA4GuE19gro-dNGz9Pv7-X/exec";
-        
-        // ★戻り先のURL (あなたのGoogle Sites)
         const HOME_URL = "https://sites.google.com/view/rudy-onlineorder/%E3%83%9B%E3%83%BC%E3%83%A0";
 
         window.app = {
@@ -152,7 +196,7 @@
                         const subtotal = price * qty;
                         total += subtotal;
                         
-                        // テーブル行生成
+                        // HTML構造 (スマホ・PC両対応)
                         tbody.innerHTML += `
                             <tr>
                                 <td class="col-img">
@@ -181,14 +225,13 @@
                 }
             },
 
-            // --- 2. 数量変更 (確認ダイアログ削除・即時反映) ---
+            // --- 2. 数量変更 ---
             updateQty: function(index, change) {
                 let cart = this.getCartData();
                 let currentQty = parseInt(cart[index].qty);
                 if (isNaN(currentQty)) currentQty = 1;
 
                 if (change === -1) {
-                    // 1以下なら即削除
                     if (currentQty <= 1) {
                         cart.splice(index, 1);
                     } else {
@@ -201,17 +244,19 @@
                 this.saveCartData(cart);
             },
 
-            // --- 3. 削除処理 (即時削除) ---
+            // --- 3. 削除 ---
             removeItem: function(index) {
                 let cart = this.getCartData();
                 cart.splice(index, 1);
                 this.saveCartData(cart);
             },
 
-            // --- 4. 全消去処理 (即時削除) ---
+            // --- 4. 全消去 ---
             clearCart: function() {
-                localStorage.removeItem('rudy_cart');
-                this.render();
+                if(confirm("カートを空にしますか？")) {
+                    localStorage.removeItem('rudy_cart');
+                    this.render();
+                }
             },
 
             // --- 5. データ取得 ---
@@ -259,7 +304,6 @@
                     document.getElementById('successModal').style.display = 'flex';
                     localStorage.removeItem('rudy_cart');
                     
-                    // 3秒後にGoogle Sitesへ戻る
                     setTimeout(() => {
                         window.location.href = HOME_URL; 
                     }, 3000);
