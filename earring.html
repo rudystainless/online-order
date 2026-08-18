@@ -38,7 +38,7 @@
         .stock-out { color: #999; }
 
         /* --- UI更新：按鈕樣式 --- */
-        /* 狀態1：未加入 (黑底白字) */
+        /* 状態1：未加入 (黑底白字) */
         button.add-btn { 
             background: #1a1a1a; color: white; border: 1px solid #1a1a1a; 
             padding: 10px; cursor: pointer; font-size: 12px; width: 100%; 
@@ -46,7 +46,7 @@
         }
         button.add-btn:active { transform: scale(0.98); }
         
-        /* 狀態2：已加入 (白底黑框，數量控制器) */
+        /* 状態2：已加入 (白底黑框，數量控制器) */
         .qty-control { 
             display: flex; align-items: center; justify-content: space-between; 
             background: #fff; border: 2px solid #1a1a1a; 
@@ -83,6 +83,7 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzxEYZ9QWeaFpIIjq8FbQIZu2qM_3DY5dxWxqxY5zq8ASxA4GuE19gro-dNGz9Pv7-X/exec";
+        
         // ↓↓↓ ここを変更してください ↓↓↓
         const SHEET_NAME = "RDSTE"; 
 
@@ -114,17 +115,16 @@
                 const cartQty = cartItem ? cartItem.qty : 0;
                 
                 // 在庫ロジック
-                const isOut = p.stock <= 0;
+                // 在庫0以下でも発注可能
                 const isLow = p.stock > 0 && p.stock <= 10;
-                const stockText = isOut ? "在庫なし" : `在庫数: ${p.stock}`;
-                const stockClass = isOut ? "stock-out" : (isLow ? "stock-low" : "stock-normal");
+                const stockText = `在庫数: ${p.stock}`;
+                const stockClass = isLow ? "stock-low" : "stock-normal";
 
                 // UI構築
                 let buttonHtml;
-                if (isOut) {
-                    buttonHtml = `<button class="add-btn" disabled style="background:#e0e0e0; color:#999; border:none;">在庫なし</button>`;
-                } else if (cartQty > 0) {
-                    // 【改善】白底黑框，明確顯示「xx個 追加済」
+
+                if (cartQty > 0) {
+                    // カートに追加済み
                     buttonHtml = `
                         <div class="qty-control">
                             <button class="btn-minus" onclick="updateCart('${p.name}', -1)">−</button>
@@ -132,6 +132,7 @@
                             <button class="btn-plus" onclick="updateCart('${p.name}', 1)">+</button>
                         </div>`;
                 } else {
+                    // 在庫数に関係なくカートに追加可能
                     buttonHtml = `<button class="add-btn" onclick="updateCart('${p.name}', 1)">カートに入れる</button>`;
                 }
 
@@ -156,30 +157,30 @@
         }
 
         /**
-         * 厳格な在庫チェック付き更新処理
+         * 在庫数に関係なくカート数量を更新
          */
         function updateCart(name, change) {
             let cart = JSON.parse(localStorage.getItem('rudy_cart') || '[]');
             const product = allProducts.find(p => p.name === name);
             let existing = cart.find(item => item.name === name);
-            const currentQty = existing ? existing.qty : 0;
 
-            // 【重要】在庫超過チェック (増やす場合のみ)
-            if (change > 0) {
-                if (currentQty >= product.stock) {
-                    alert(`在庫は残り${product.stock}点のみです。これ以上追加できません。`);
-                    return; // 処理をここで停止
-                }
-            }
+            // 在庫超過チェックは削除
+            // 在庫0以下の商品も、在庫数を超えた数量も発注可能
 
             // カート更新処理
             if (existing) {
                 existing.qty += change;
+                
                 if (existing.qty <= 0) {
                     cart = cart.filter(item => item.name !== name);
                 }
             } else if (change > 0) {
-                cart.push({ name, price: product.price, qty: 1, img: product.img });
+                cart.push({
+                    name: name,
+                    price: product.price,
+                    qty: 1,
+                    img: product.img
+                });
             }
 
             localStorage.setItem('rudy_cart', JSON.stringify(cart));
