@@ -253,6 +253,7 @@
 
             // --- 4. 全消去 ---
             clearCart: function() {
+                if(confirm("カートを空にしますか？")) {
                     localStorage.removeItem('rudy_cart');
                     this.render();
                 }
