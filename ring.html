@@ -116,7 +116,7 @@
                 
                 // 在庫ロジック
                 // 在庫0以下でも発注可能に変更
-                const isLow = p.stock > 0 && p.stock <= 10;
+                const isLow = p.stock <= 10;
                 const stockText = `在庫数: ${p.stock}`;
                 const stockClass = isLow ? "stock-low" : "stock-normal";
 
